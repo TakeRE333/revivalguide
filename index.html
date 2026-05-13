@@ -12,17 +12,17 @@
 <body>
 <div class="container">
     <h1>Доступ к гайду</h1>
-    <p>Этот гайд доступен только участникам Discord-<a href="https://discord.gg/bnsgambler">Revival BnS</a></p>
-    <p>Напишите боту команду <code>!getguide</code> в личные сообщения.</p>
+    <p>Этот гайд доступен только участникам боевой школы Revival (Discord канал-<a href="https://discord.gg/bnsgambler">Revival BnS</a>)</p>
+    <p>Напишите боту команду <code>!guide</code> в разделе #guide</p>
 </div>
 
 <script>
-    const SECRET_KEY = 'НЕ_СМОТРИ_СЮДА_ТЫ_МЕНЯ_ПОНЯЛ';          // Тот же ключ, что у бота
+    const SECRET_KEY = 'aB3dE5fG7hJ9kL1m';          // Тот же ключ, что у бота
     const COOKIE_NAME = 'guide_access';
     const COOKIE_DAYS = 60;
 
 	// Если куки уже есть – сразу переходим на гайд
-    if (getCookie(COOKIE_NAME) === 'НЕ_СМОТРИ_СЮДА_ТЫ_МЕНЯ_ПОНЯЛ') {
+    if (getCookie(COOKIE_NAME) === 'aB3dE5fG7hJ9kL1m') {
         window.location.replace('guide.html');
     }
 
@@ -45,7 +45,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const keyFromUrl = urlParams.get('key');
     if (keyFromUrl && keyFromUrl === SECRET_KEY) {
-        setCookie(COOKIE_NAME, 'НЕ_СМОТРИ_СЮДА_ТЫ_МЕНЯ_ПОНЯЛ', COOKIE_DAYS);
+        setCookie(COOKIE_NAME, 'aB3dE5fG7hJ9kL1m', COOKIE_DAYS);
         window.location.replace('guide.html');
     }
 
