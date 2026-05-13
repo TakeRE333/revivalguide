@@ -2,26 +2,140 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Доступ к гайду</title>
+    <title>Доступ к гайду | Asura BnS</title>
     <style>
-        body { font-family: sans-serif; margin: 2rem; }
-        .container { max-width: 500px; margin: auto; text-align: center; }
-        input, button { padding: 8px; margin: 5px; }
+        /* 1. БАЗОВЫЕ СТЫКОВКИ С ТВОИМ СТИЛЕМ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2a1a3a 0%, #1e1230 100%);
+            font-family: 'Segoe UI', 'Noto Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Чтобы картинка была под контейнером */
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 2. ОСНОВНОЙ КОНТЕЙНЕР (Аналог guide-container) */
+        .access-wrapper {
+            max-width: 600px;
+            width: 100%;
+            background: #2a1e3a;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            padding: 20px;
+            margin-bottom: 30px; /* Отступ для картинки снизу */
+        }
+
+        /* Внутренняя панель (Аналог content-inner) */
+        .access-card {
+            background: #271e34;
+            border-radius: 16px;
+            padding: 30px 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            border: 1px solid #5a3e7a;
+            text-align: center;
+        }
+
+        /* 3. ТИПОГРАФИКА */
+        h1 {
+            color: #ffb347;
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            border-bottom: 2px solid #5a3e7a;
+            padding-bottom: 10px;
+        }
+
+        p {
+            color: #f5e6b8;
+            line-height: 1.6;
+            font-size: 17px;
+            margin-bottom: 15px;
+        }
+
+        .yellow-text {
+            color: #ffd966;
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .yellow-text:hover {
+            color: #ffb347;
+        }
+
+        /* Стилизация команды !guide */
+        code {
+            background: rgba(255, 179, 71, 0.15);
+            color: #ffe0a3;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 1.1em;
+            border: 1px solid rgba(255, 179, 71, 0.3);
+        }
+
+        /* 4. БЛОК С ИЗОБРАЖЕНИЕМ И ЗАТУХАНИЕМ КРАЕВ */
+        .footer-image-container {
+            position: relative;
+            width: 300px; /* Настрой размер под себя */
+            height: 150px; /* Настрой размер под себя */
+            margin: 0 auto;
+            border-radius: 50%; /* Эллиптическая форма */
+            overflow: hidden;
+        }
+
+        .footer-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Слой для мягкого затухания краев */
+        .footer-image-container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            /* Внутренняя тень создает эффект растворения краев в фоне */
+            box-shadow: inset 0 0 25px 15px #1e1230; 
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Доступ к гайду</h1>
-    <p>Этот гайд доступен только участникам боевой школы Revival (Discord канал-<a href="https://discord.gg/bnsgambler">Revival BnS</a>)</p>
-    <p>Напишите боту команду <code>!guide</code> в разделе #guide</p>
+
+<div class="access-wrapper">
+    <div class="access-card">
+        <h1>Доступ к гайду</h1>
+        <p>Этот гайд доступен только участникам боевой школы <span class="yellow-text">Revival</span></p>
+        <p>(Discord канал — <a href="https://discord.gg/bnsgambler" class="yellow-text">Revival BnS</a>)</p>
+        
+        <div style="margin-top: 20px; padding: 15px; background: rgba(90, 62, 122, 0.2); border-radius: 12px;">
+            <p>Напишите в любом текстовом канале команду <code>!guide</code> и для Вас ботом будет сгенерирована ссылка для доступа к гайду!</p>
+        </div>
+    </div>
+</div>
+
+<div class="footer-image-container">
+    <img src="revival_0.jpg" alt="Revival Decoration">
 </div>
 
 <script>
-    const SECRET_KEY = 'aB3dE5fG7hJ9kL1m';          // Тот же ключ, что у бота
+    const SECRET_KEY = 'aB3dE5fG7hJ9kL1m';
     const COOKIE_NAME = 'guide_access';
     const COOKIE_DAYS = 60;
 
-	// Если куки уже есть – сразу переходим на гайд
     if (getCookie(COOKIE_NAME) === 'aB3dE5fG7hJ9kL1m') {
         window.location.replace('guide.html');
     }
@@ -41,14 +155,13 @@
         return match ? match[2] : null;
     }
 
-    // Обработка параметра ?key=... (ссылка от бота)
     const urlParams = new URLSearchParams(window.location.search);
     const keyFromUrl = urlParams.get('key');
     if (keyFromUrl && keyFromUrl === SECRET_KEY) {
         setCookie(COOKIE_NAME, 'aB3dE5fG7hJ9kL1m', COOKIE_DAYS);
         window.location.replace('guide.html');
     }
-
 </script>
+
 </body>
 </html>
