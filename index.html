@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Доступ к гайду | Asura BnS</title>
     <style>
-        /* 1. БАЗОВЫЕ СТЫКОВКИ С ТВОИМ СТИЛЕМ */
+        /* 1. ОСНОВА */
         * {
             margin: 0;
             padding: 0;
@@ -16,24 +16,25 @@
             font-family: 'Segoe UI', 'Noto Sans', sans-serif;
             min-height: 100vh;
             display: flex;
-            flex-direction: column; /* Чтобы картинка была под контейнером */
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            /* Центрируем содержимое с небольшим смещением вверх */
+            justify-content: center; 
             padding: 20px;
         }
 
-        /* 2. ОСНОВНОЙ КОНТЕЙНЕР (Аналог guide-container) */
+        /* 2. КОНТЕЙНЕР (Подняли выше за счет margin-top) */
         .access-wrapper {
             max-width: 600px;
             width: 100%;
             background: #2a1e3a;
             border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             padding: 20px;
-            margin-bottom: 30px; /* Отступ для картинки снизу */
+            z-index: 2; /* Чтобы быть поверх свечения картинки если нужно */
+            margin-top: -50px; /* Сдвигаем всё окно чуть выше */
         }
 
-        /* Внутренняя панель (Аналог content-inner) */
         .access-card {
             background: #271e34;
             border-radius: 16px;
@@ -43,7 +44,7 @@
             text-align: center;
         }
 
-        /* 3. ТИПОГРАФИКА */
+        /* 3. ТЕКСТ */
         h1 {
             color: #ffb347;
             font-size: 28px;
@@ -64,14 +65,8 @@
             color: #ffd966;
             font-weight: bold;
             text-decoration: none;
-            transition: color 0.2s;
         }
 
-        .yellow-text:hover {
-            color: #ffb347;
-        }
-
-        /* Стилизация команды !guide */
         code {
             background: rgba(255, 179, 71, 0.15);
             color: #ffe0a3;
@@ -82,24 +77,26 @@
             border: 1px solid rgba(255, 179, 71, 0.3);
         }
 
-        /* 4. БЛОК С ИЗОБРАЖЕНИЕМ И ЗАТУХАНИЕМ КРАЕВ */
+        /* 4. ИЗОБРАЖЕНИЕ В ПОЛНЫЙ РАЗМЕР С ПЛАВНЫМИ КРАЯМИ */
         .footer-image-container {
             position: relative;
-            width: 300px; /* Настрой размер под себя */
-            height: 150px; /* Настрой размер под себя */
-            margin: 0 auto;
-            border-radius: 50%; /* Эллиптическая форма */
-            overflow: hidden;
+            width: 100%; /* Занимает всю ширину под окном */
+            max-width: 800px; /* Но не шире этого значения */
+            height: 400px; /* Достаточная высота для большой картинки */
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .footer-image-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* Чтобы картинка не обрезалась, а вписывалась */
             display: block;
         }
 
-        /* Слой для мягкого затухания краев */
+        /* Эффект супер-плавного затухания */
         .footer-image-container::after {
             content: "";
             position: absolute;
@@ -107,9 +104,14 @@
             left: 0;
             right: 0;
             bottom: 0;
-            /* Внутренняя тень создает эффект растворения краев в фоне */
-            box-shadow: inset 0 0 25px 15px #1e1230; 
-            border-radius: 50%;
+            /* Радиальный градиент: в центре прозрачно, к краям уходит в цвет фона */
+            background: radial-gradient(
+                circle, 
+                transparent 20%, 
+                rgba(30, 18, 48, 0.4) 50%, 
+                rgba(30, 18, 48, 0.8) 80%, 
+                #1e1230 100%
+            );
         }
     </style>
 </head>
@@ -119,16 +121,16 @@
     <div class="access-card">
         <h1>Доступ к гайду</h1>
         <p>Этот гайд доступен только участникам боевой школы <span class="yellow-text">Revival</span></p>
-        <p>(Discord канал — <a href="https://discord.gg/bnsgambler" class="yellow-text">Revival BnS</a>)</p>
+        <p>(Discord канал — <a href="https://discord.gg/bnsgambler" class="yellow-text" target="_blank">Revival BnS</a>)</p>
         
         <div style="margin-top: 20px; padding: 15px; background: rgba(90, 62, 122, 0.2); border-radius: 12px;">
-            <p>Напишите в любом текстовом канале команду <code>!guide</code> и для Вас будет сгенерирована ссылка для доступа к гайду!</p>
+            <p>Напишите боту команду <code>!guide</code> в разделе <span class="yellow-text">#guide</span></p>
         </div>
     </div>
 </div>
 
 <div class="footer-image-container">
-    <img src="revival_0.png" alt="Revival Decoration">
+    <img src="ССЫЛКА_НА_ВАШУ_КАРТИНКУ" alt="Asura Art">
 </div>
 
 <script>
