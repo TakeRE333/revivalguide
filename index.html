@@ -95,25 +95,7 @@
             object-fit: contain; /* Чтобы картинка не обрезалась, а вписывалась */
             display: block;
         }
-
-        /* Эффект супер-плавного затухания */
-        .footer-image-container::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            /* Радиальный градиент: в центре прозрачно, к краям уходит в цвет фона */
-            background: radial-gradient(
-                circle, 
-                transparent 20%, 
-                rgba(30, 18, 48, 0.4) 50%, 
-                rgba(30, 18, 48, 0.8) 80%, 
-                #1e1230 100%
-            );
-        }
-    </style>
+</style>
 </head>
 <body>
 
