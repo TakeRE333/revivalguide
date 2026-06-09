@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Доступ к гайду | Asura BnS</title>
     <style>
-        /* 1. ОСНОВА */
         * {
             margin: 0;
             padding: 0;
@@ -18,12 +17,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Центрируем содержимое с небольшим смещением вверх */
-            justify-content: center; 
+            justify-content: center;
             padding: 20px;
         }
 
-        /* 2. КОНТЕЙНЕР (Подняли выше за счет margin-top) */
         .access-wrapper {
             max-width: 600px;
             width: 100%;
@@ -31,8 +28,8 @@
             border-radius: 24px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             padding: 20px;
-            z-index: 2; /* Чтобы быть поверх свечения картинки если нужно */
-            margin-top: -50px; /* Сдвигаем всё окно чуть выше */
+            z-index: 2;
+            margin-top: -50px;
         }
 
         .access-card {
@@ -44,7 +41,6 @@
             text-align: center;
         }
 
-        /* 3. ТЕКСТ */
         h1 {
             color: #ffb347;
             font-size: 28px;
@@ -77,12 +73,39 @@
             border: 1px solid rgba(255, 179, 71, 0.3);
         }
 
-        /* 4. ИЗОБРАЖЕНИЕ В ПОЛНЫЙ РАЗМЕР С ПЛАВНЫМИ КРАЯМИ */
+        .loader {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #5a3e7a;
+            border-top: 3px solid #ffb347;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-box {
+            background: rgba(255, 80, 80, 0.2);
+            border: 1px solid #ff6b6b;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .error-text {
+            color: #ff9999;
+        }
+
         .footer-image-container {
             position: relative;
-            width: 100%; /* Занимает всю ширину под окном */
-            max-width: 800px; /* Но не шире этого значения */
-            height: 400px; /* Достаточная высота для большой картинки */
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
             margin-top: 20px;
             display: flex;
             justify-content: center;
@@ -92,11 +115,10 @@
         .footer-image-container img {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Чтобы картинка не обрезалась, а вписывалась */
+            object-fit: contain;
             display: block;
         }
 
-        /* Эффект супер-плавного затухания */
         .footer-image-container::after {
             content: "";
             position: absolute;
@@ -104,7 +126,6 @@
             left: 0;
             right: 0;
             bottom: 0;
-            /* Радиальный градиент: в центре прозрачно, к краям уходит в цвет фона */
             background: radial-gradient(
                 circle, 
                 transparent 20%, 
@@ -112,20 +133,21 @@
                 rgba(30, 18, 48, 0.8) 80%, 
                 #1e1230 100%
             );
+            pointer-events: none;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #a090b0;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
 <div class="access-wrapper">
-    <div class="access-card">
-        <h1>Доступ к гайду</h1>
-        <p>Этот гайд доступен только участникам боевой школы <span class="yellow-text">Revival</span></p>
-        <p>(Discord канал — <a href="https://discord.gg/bnsgambler" class="yellow-text" target="_blank">Revival BnS</a>)</p>
-        
-        <div style="margin-top: 20px; padding: 15px; background: rgba(90, 62, 122, 0.2); border-radius: 12px;">
-            <p>Напишите в любом текстовом канале команду <code>!guide</code> и для Вас будет сгенерирована ссылка для доступа к гайду!</p>
-        </div>
+    <div class="access-card" id="mainCard">
+        <!-- Содержимое будет динамически меняться -->
     </div>
 </div>
 
@@ -134,35 +156,71 @@
 </div>
 
 <script>
-    const SECRET_KEY = 'aB3dE5fG7hJ9kL1m';
-    const COOKIE_NAME = 'guide_access';
-    const COOKIE_DAYS = 60;
-
-    if (getCookie(COOKIE_NAME) === 'aB3dE5fG7hJ9kL1m') {
-        window.location.replace('guide.html');
-    }
-
-    function setCookie(name, value, days) {
-        let expires = '';
-        if (days) {
-            const date = new Date();
-            date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-            expires = '; expires=' + date.toUTCString();
-        }
-        document.cookie = name + '=' + (value || '') + expires + '; path=/';
-    }
-
-    function getCookie(name) {
-        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-        return match ? match[2] : null;
-    }
-
+    // ⚠️ ссылка на бот
+    const BOT_API = 'https://revivalbot.onrender.com';
+    
     const urlParams = new URLSearchParams(window.location.search);
-    const keyFromUrl = urlParams.get('key');
-    if (keyFromUrl && keyFromUrl === SECRET_KEY) {
-        setCookie(COOKIE_NAME, 'aB3dE5fG7hJ9kL1m', COOKIE_DAYS);
-        window.location.replace('guide.html');
+    const token = urlParams.get('key');
+    
+    const mainCard = document.getElementById('mainCard');
+    
+    function showLoading() {
+        mainCard.innerHTML = `
+            <h1>Проверка доступа</h1>
+            <div class="loader"></div>
+            <p>Пожалуйста, подождите...</p>
+        `;
     }
+    
+    function showError(message, showGuideCommand = true) {
+        mainCard.innerHTML = `
+            <h1>🚫 Доступ запрещён</h1>
+            <div class="error-box">
+                <p class="error-text">${message}</p>
+            </div>
+            ${showGuideCommand ? `
+                <div style="margin-top: 20px;">
+                    <p>Напишите в любом текстовом канале команду <code>!guide</code></p>
+                    <p class="info-text">Бот выдаст вам персональную ссылку</p>
+                </div>
+            ` : ''}
+        `;
+    }
+    
+    async function checkAccess() {
+        showLoading();
+        
+        if (!token) {
+            showError('❌ Токен не указан. Получите ссылку в Discord командой !guide', true);
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                showError(`❌ ${errorText || 'Доступ запрещён'}`, true);
+                return;
+            }
+            
+            const html = await response.text();
+            
+            // Сохраняем токен для будущих визитов (опционально)
+            localStorage.setItem('revival_token', token);
+            
+            // Заменяем страницу содержимым гайда
+            document.open();
+            document.write(html);
+            document.close();
+            
+        } catch (error) {
+            console.error('Ошибка:', error);
+            showError('⚠️ Ошибка соединения с сервером. Попробуйте позже.', true);
+        }
+    }
+    
+    checkAccess();
 </script>
 
 </body>
