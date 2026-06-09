@@ -29,7 +29,6 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             padding: 20px;
             z-index: 2;
-            margin-top: -50px;
         }
 
         .access-card {
@@ -65,12 +64,6 @@
             margin-bottom: 15px;
         }
 
-        .yellow-text {
-            color: #ffd966;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
         code {
             background: rgba(255, 179, 71, 0.15);
             color: #ffe0a3;
@@ -98,39 +91,10 @@
             100% { transform: rotate(360deg); }
         }
 
-        .footer-image-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            height: 400px;
+        .footer-image {
             margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .footer-image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+            max-width: 100%;
             display: block;
-        }
-
-        .footer-image-container::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(
-                circle, 
-                transparent 20%, 
-                rgba(30, 18, 48, 0.4) 50%, 
-                rgba(30, 18, 48, 0.8) 80%, 
-                #1e1230 100%
-            );
-            pointer-events: none;
         }
 
         .info-text {
@@ -148,9 +112,7 @@
     </div>
 </div>
 
-<div class="footer-image-container">
-    <img src="revival_1.png" alt="Revival Art">
-</div>
+<img class="footer-image" src="revival_1.png" alt="Revival Art">
 
 <script>
     // Адрес вашего бота на Render
@@ -195,7 +157,6 @@
             
             if (!response.ok) {
                 const errorText = await response.text();
-                // Если ошибка от бота — показываем её, без дополнительных сообщений
                 showError(`❌ ${errorText || 'Доступ запрещён'}`, false);
                 return;
             }
