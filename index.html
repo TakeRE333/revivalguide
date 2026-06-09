@@ -169,12 +169,12 @@
         `;
     }
     
-    function showError(message, showGuideCommand = true) {
+    function showError(message, showGuideMessage = false) {
         mainCard.innerHTML = `
             <h1>Доступ к гайду</h1>
             <div class="error-box">
                 <p class="error-text">${message}</p>
-                ${showGuideCommand ? `
+                ${showGuideMessage ? `
                     <p class="error-text">Напишите в любом текстовом канале команду <code>!guide</code></p>
                     <p class="info-text">Бот выдаст вам персональную ссылку</p>
                 ` : ''}
@@ -186,7 +186,7 @@
         showLoading();
         
         if (!token) {
-            showError('❌ Токен не указан. Получите ссылку в Discord командой !guide', true);
+            showError('❌ Токен не указан.', true);
             return;
         }
         
@@ -195,7 +195,8 @@
             
             if (!response.ok) {
                 const errorText = await response.text();
-                showError(`❌ ${errorText || 'Доступ запрещён'}`, true);
+                // Если ошибка от бота — показываем её, без дополнительных сообщений
+                showError(`❌ ${errorText || 'Доступ запрещён'}`, false);
                 return;
             }
             
@@ -211,7 +212,7 @@
             
         } catch (error) {
             console.error('Ошибка:', error);
-            showError('⚠️ Ошибка соединения с сервером. Попробуйте позже.', true);
+            showError('⚠️ Ошибка соединения с сервером.', false);
         }
     }
     
