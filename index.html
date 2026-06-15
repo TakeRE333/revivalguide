@@ -115,58 +115,67 @@
 <img class="footer-image" src="revival_1.png" alt="Revival Art">
 
 <script>
-    // Адрес вашего бота на Render
     const BOT_API = 'https://revivalbot.onrender.com';
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('key');
-    
     const mainCard = document.getElementById('mainCard');
     
-    function showLoading() {
+    // Функция показа состояния загрузки с изменяемым текстом
+    function showLoading(statusText = "Пожалуйста, подождите...") {
         mainCard.innerHTML = `
             <h1>Проверка доступа</h1>
             <div class="loader"></div>
-            <p style="color: #f5e6b8;">Пожалуйста, подождите...</p>
+            <p style="color: #f5e6b8;" id="statusText">${statusText}</p>
         `;
     }
     
+    // Вспомогательная функция для обновления текста
+    function updateStatus(text) {
+        const el = document.getElementById('statusText');
+        if (el) el.innerText = text;
+    }
+    
+    // Функция отображения ошибок
     function showError(message, showGuideMessage = false) {
         mainCard.innerHTML = `
             <h1>Доступ к гайду</h1>
             <div class="error-box">
                 <p class="error-text">${message}</p>
                 ${showGuideMessage ? `
-                    <p class="error-text">Напишите в любом текстовом канале команду <code>!guide</code></p>
+                    <p class="error-text">Напишите в любом текстовом канале команду <code>/guide</code></p>
                     <p class="info-text">Бот выдаст вам персональную ссылку</p>
                 ` : ''}
             </div>
         `;
     }
-    
-    async function checkAccess() {
-        showLoading();
+
+    // Главная логика загрузки
+    async function initAccess() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let token = urlParams.get('key') || localStorage.getItem('revival_token');
         
         if (!token) {
-            showError('❌ Токен не указан.', true);
+            showError('❌ Токен не найден. Воспользуйтесь ссылкой от бота.', true);
             return;
         }
+
+        showLoading("Инициализация...");
         
         try {
+            updateStatus("Проверка доступа...");
             const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
             
             if (!response.ok) {
+                localStorage.removeItem('revival_token');
                 const errorText = await response.text();
-                showError(`❌ ${errorText || 'Доступ запрещён'}`, false);
+                showError(`❌ ${errorText || 'Доступ запрещён'}`, true);
                 return;
             }
             
+            updateStatus("Доступ получен, загрузка гайда...");
             const html = await response.text();
             
-            // Сохраняем токен для будущих визитов
+            updateStatus("Завершение загрузки...");
             localStorage.setItem('revival_token', token);
             
-            // Заменяем страницу содержимым гайда
             document.open();
             document.write(html);
             document.close();
@@ -176,8 +185,9 @@
             showError('⚠️ Ошибка соединения с сервером.', false);
         }
     }
-    
-    checkAccess();
+
+    // Запуск при открытии страницы
+    initAccess();
 </script>
 
 </body>
