@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Доступ к гайду | Asura BnS</title>
+    <meta name="color-scheme" content="light">
+    <link rel="icon" href="data:image/jpg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAUABQDASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAcIBgn/xAAoEAACAgIBBAIBBAMAAAAAAAABAgMEBREABgcSIQgTCRQVIjFBYnH/xAAZAQABBQAAAAAAAAAAAAAAAAAGAwQFBwj/xAAmEQACAgEDAwMFAAAAAAAAAAABAgMRAAQSIQUiQQYxURQzYXGR/9oADAMBAAIRAxEAPwCrfNj5+X+317NdG9Gx2sbYo21pWs/WVZrLTBQ0kNeIoyr/AGEMrn0Q4Vd6bmJO3/zW7+dPdZ496fWt+1N+tK3MTmJnvJ9K+Jd5hIxCghtaTxOwdEHnV/JSeforur17H1FK652POXp7KpGw+5JHMsLqADpWiePx3/z/AByA/sGUxdGPKx1Yq1wBpL0zyhGdnPmWb2FPgfSIW2TrZAGiF/XzNNJv7aJVb4HmuP5Z5JsewzRCemNAnTtK+lAlBRZJQq7mF7Sbbuq+dopVCqxpmIz3i+PfeOLvr2txvVSUhjbUkktW5S+zzENiJyjgNr2p0GUn34sN++ORf8ZtO8nxoXJ3Y3SPMZm3eqvLH9byxaji8imz4nyica/1HHC2BnaJGk9yBf7yiuqRQQ66eLTfbDMF88AmuefH5ypd7fix2+79WYb3UeMlr5yvCIYszjZfptLGGLCNjorIoYkhZFYAkka2eR3p78a/aW9K+Qy9rqXNWTJrdnJLEPFSf4gQRx63s7I9+/RHHHEJIImmDsgJ+aGSOl6jrYtA8MczBQQQAxAB+aus1ti8XTw2Nq0KFaKnSqxLDBXhQKkSKNKqgegABrXHHHH2Def/2Q==">
     <style>
         * {
             margin: 0;
@@ -149,42 +151,43 @@
 
     // Главная логика загрузки
     async function initAccess() {
-        const urlParams = new URLSearchParams(window.location.search);
-        let token = urlParams.get('key') || localStorage.getItem('revival_token');
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // 1. Берем токен из URL (при переходе от бота) или из хранилища (при обновлении страницы)
+    let token = urlParams.get('key') || localStorage.getItem('revival_token');
+    
+    if (!token) {
+        showError('❌ Токен не найден. Воспользуйтесь ссылкой от бота.', true);
+        return;
+    }
+
+    // Сохраняем токен, чтобы он "жил" после F5
+    localStorage.setItem('revival_token', token);
+
+    showLoading("Проверка доступа...");
+    
+    try {
+        const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
         
-        if (!token) {
-            showError('❌ Токен не найден. Воспользуйтесь ссылкой от бота.', true);
+        if (!response.ok) {
+            // Если токен протух - чистим и выходим
+            localStorage.removeItem('revival_token');
+            showError('❌ Токен недействителен. Получите новую ссылку.', true);
             return;
         }
-
-        showLoading("Инициализация...");
         
-        try {
-            updateStatus("Проверка доступа...");
-            const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
-            
-            if (!response.ok) {
-                localStorage.removeItem('revival_token');
-                const errorText = await response.text();
-                showError(`❌ ${errorText || 'Доступ запрещён'}`, true);
-                return;
-            }
-            
-            updateStatus("Доступ получен, загрузка гайда...");
-            const html = await response.text();
-            
-            updateStatus("Завершение загрузки...");
-            localStorage.setItem('revival_token', token);
-            
-            document.open();
-            document.write(html);
-            document.close();
-            
-        } catch (error) {
-            console.error('Ошибка:', error);
-            showError('⚠️ Ошибка соединения с сервером.', false);
-        }
+        const html = await response.text();
+        
+        // Вставляем содержимое гайда
+        document.open();
+        document.write(html);
+        document.close();
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showError('⚠️ Ошибка соединения. Попробуйте обновить страницу.', false);
     }
+}
 
     // Запуск при открытии страницы
     initAccess();
