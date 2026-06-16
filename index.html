@@ -110,87 +110,67 @@
 
 <div class="access-wrapper">
     <div class="access-card" id="mainCard">
-        <!-- Содержимое будет динамически меняться -->
     </div>
 </div>
-
 <img class="footer-image" src="revival_1.png" alt="Revival Art">
-
 <script>
-    const BOT_API = 'https://revivalbot.onrender.com';
-    const mainCard = document.getElementById('mainCard');
-    
-    // Функция показа состояния загрузки с изменяемым текстом
-    function showLoading(statusText = "Пожалуйста, подождите...") {
-        mainCard.innerHTML = `
-            <h1>Проверка доступа</h1>
-            <div class="loader"></div>
-            <p style="color: #f5e6b8;" id="statusText">${statusText}</p>
-        `;
-    }
-    
-    // Вспомогательная функция для обновления текста
+    const BOT_API = "https://revivalbot.onrender.com";
+
     function updateStatus(text) {
-        const el = document.getElementById('statusText');
+        const el = document.getElementById('status-text');
         if (el) el.innerText = text;
     }
-    
-    // Функция отображения ошибок
-    function showError(message, showGuideMessage = false) {
-        mainCard.innerHTML = `
-            <h1>Доступ к гайду</h1>
-            <div class="error-box">
-                <p class="error-text">${message}</p>
-                ${showGuideMessage ? `
-                    <p class="error-text">Напишите в любом текстовом канале команду <code>/guide</code></p>
-                    <p class="info-text">Бот выдаст вам персональную ссылку</p>
-                ` : ''}
-            </div>
+
+    function showLoading(statusText) {
+        document.getElementById('mainCard').innerHTML = `
+            <h1>Проверка доступа</h1>
+            <div class="loader"></div>
+            <p style="color: #f5e6b8;" id="status-text">${statusText}</p>
         `;
     }
 
-    // Главная логика загрузки
-    async function initAccess() {
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    // 1. Берем токен из URL (при переходе от бота) или из хранилища (при обновлении страницы)
-    let token = urlParams.get('key') || localStorage.getItem('revival_token');
-    
-    if (!token) {
-        showError('❌ Токен не найден. Воспользуйтесь ссылкой от бота.', true);
-        return;
+    function showError(msg) {
+        document.getElementById('mainCard').innerHTML = `<div class="error">${msg}</div>`;
     }
 
-    // Сохраняем токен, чтобы он "жил" после F5
-    localStorage.setItem('revival_token', token);
+    async function initAccess() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let token = urlParams.get('key') || localStorage.getItem('revival_token');
+        const expiresAt = localStorage.getItem('token_expires');
 
-    showLoading("Проверка доступа...");
-    
-    try {
-        const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
-        
-        if (!response.ok) {
-            // Если токен протух - чистим и выходим
-            localStorage.removeItem('revival_token');
-            showError('❌ Токен недействителен. Получите новую ссылку.', true);
+        // Проверка: если токен есть и он еще активен, пробуем сразу грузить
+        if (!token) {
+            showError('❌ Токен не найден. Воспользуйтесь ссылкой от бота.');
             return;
         }
-        
-        const html = await response.text();
-        
-        // Вставляем содержимое гайда
-        document.open();
-        document.write(html);
-        document.close();
-        
-    } catch (error) {
-        console.error('Ошибка:', error);
-        showError('⚠️ Ошибка соединения. Попробуйте обновить страницу.', false);
-    }
-}
 
-    // Запуск при открытии страницы
-    initAccess();
+        localStorage.setItem('revival_token', token);
+        showLoading("Инициализация...");
+
+        try {
+            updateStatus("Загрузка данных...");
+            const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
+            
+            if (!response.ok) throw new Error("Токен недействителен или истек.");
+
+            const data = await response.json(); 
+            
+            if (data.status === 'success') {
+                localStorage.setItem('token_expires', data.expires_at);
+                document.open();
+                document.write(data.html);
+                document.close();
+            } else {
+                throw new Error(data.message || "Ошибка доступа");
+            }
+        } catch (error) {
+            localStorage.removeItem('revival_token');
+            localStorage.removeItem('token_expires');
+            showError('⚠️ ' + error.message);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', initAccess);
 </script>
 
 </body>
