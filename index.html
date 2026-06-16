@@ -154,28 +154,32 @@
             if (!response.ok) throw new Error("Токен недействителен или истек.");
             setTaskStatus('t1', 'done');
 
-            // 2. Загрузка данных (JSON от бота)
+            // ФАЗА 2: Загрузка баз в window
             setTaskStatus('t2', 'loading');
-            const data = await response.json(); 
-            setTaskStatus('t2', 'done');
-
-            // 3. Завершение и рендер
-            setTaskStatus('t3', 'loading');
-            localStorage.setItem('token_expires', data.expires_at);
-            
-            // Маленькая задержка для визуального эффекта галочки
-            await new Promise(r => setTimeout(r, 500));
-            setTaskStatus('t3', 'done');
-
-            document.open();
-            document.write(data.html);
-            document.close();
-
-        } catch (error) {
-            localStorage.removeItem('revival_token');
-            showError('⚠️ ' + error.message);
+            try {
+                // Мы используем eval или просто вставляем скрипты в head, чтобы данные стали глобальными
+                const [loot, svg, items] = await Promise.all([
+                    fetch('https://revivalbot.onrender.com/content/database_loot.js').then(r => r.text()),
+                    fetch('https://revivalbot.onrender.com/content/database_svg.js').then(r => r.text()),
+                    fetch('https://revivalbot.onrender.com/content/database_items.html').then(r => r.text())
+                ]);
+        
+                // Вставляем данные в текущую страницу
+                const scriptLoot = document.createElement('script'); scriptLoot.textContent = loot; document.head.appendChild(scriptLoot);
+                const scriptSvg = document.createElement('script'); scriptSvg.textContent = svg; document.head.appendChild(scriptSvg);
+                // База предметов (HTML) ложится в глобальную переменную или DOM
+                window.itemsHtmlData = items; 
+                
+                setTaskStatus('t2', 'done');
+        
+                // ФАЗА 3: Открываем гайд
+                document.open();
+                document.write(data.html); // Сюда прилетает сам guide.html
+                document.close();
+            } catch (e) {
+                showError('Ошибка загрузки баз: ' + e.message);
+            }
         }
-    }
 
     window.addEventListener('DOMContentLoaded', initAccess);
 </script>
