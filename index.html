@@ -146,50 +146,70 @@
         }
 
         try {
-            // 1. Проверка доступа
+            // T1: Проверка токена
             setTaskStatus('t1', 'loading');
-            const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
-            if (!response.ok) throw new Error("Токен недействителен.");
-            const data = await response.json();
-            window.guideData = data.html; // Сохраняем результат
+            const authRes = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
+            if (!authRes.ok) throw new Error("Токен недействителен.");
+            const data = await authRes.json();
+            window.guideData = data.html; // Получили HTML гайда
             setTaskStatus('t1', 'done');
-
-            // 2. Параллельная загрузка 3-х баз (t2)
-            setTaskStatus('t2', 'loading');
-            const dbUrls = [
-                'https://revivalbot.onrender.com/content/database_loot.js',
-                'https://revivalbot.onrender.com/content/database_svg.js',
-                'https://revivalbot.onrender.com/content/database_items.html'
-            ];
-
-            await Promise.all(dbUrls.map(url => fetch(url).then(r => r.text()).then(content => {
-                if (url.endsWith('.js')) {
-                    const s = document.createElement('script'); s.textContent = content; document.head.appendChild(s);
-                } else {
-                    window.itemsHtmlData = content;
+        
+            // Флаги готовности
+            let loaded = { loot: false, svg: false, items: false, guide: false };
+            setTaskStatus('t2', 'loading'); 
+            setTaskStatus('t3', 'loading'); 
+        
+            // Функция проверки финиша
+            const checkStatus = () => {
+                // Галочка T2: загорается только когда все 3 базы пришли
+                if (loaded.loot && loaded.svg && loaded.items) {
+                    setTaskStatus('t2', 'done');
                 }
-            })));
-            setTaskStatus('t2', 'done');
-
-            // 3. Загрузка "Гайда" (t3) — это визуальный шаг завершения
-            setTaskStatus('t3', 'loading');
-            await new Promise(r => setTimeout(r, 500)); // Эффект завершения
-            setTaskStatus('t3', 'done');
-
-            // 4. Финальный рендер
-            const root = document.getElementById('app-root');
-            root.innerHTML = window.guideData;
-            // После вставки запускаем инициализацию гайда
-            if (typeof window.initializeGuideContent === 'function') {
-                window.initializeGuideContent();
-            }
-
-        } catch (error) {
-            showError('⚠️ ' + error.message);
+                // Галочка T3: загорается когда сам гайд "готов"
+                if (loaded.guide) {
+                    setTaskStatus('t3', 'done');
+                }
+                // Финальный переход: если всё 4 файла загружены
+                if (Object.values(loaded).every(v => v === true)) {
+                    setTimeout(() => {
+                        document.getElementById('app-root').innerHTML = window.guideData;
+                        if (window.initializeGuideContent) window.initializeGuideContent();
+                    }, 400); // Задержка, чтобы глаз успел зафиксировать все три галочки
+                }
+            };
+        
+            // 1. Потоки загрузки баз (T2)
+            const baseUrl = "https://revivalbot.onrender.com/content/";
+            const v = Date.now();
+        
+            fetch(`${baseUrl}database_loot.js?v=${v}`).then(r => r.text()).then(c => {
+                const s = document.createElement('script'); s.textContent = c; document.head.appendChild(s);
+                loaded.loot = true; checkStatus();
+            });
+            fetch(`${baseUrl}database_svg.js?v=${v}`).then(r => r.text()).then(c => {
+                const s = document.createElement('script'); s.textContent = c; document.head.appendChild(s);
+                loaded.svg = true; checkStatus();
+            });
+            fetch(`${baseUrl}database_items.html?v=${v}`).then(r => r.text()).then(c => {
+                window.itemsHtmlData = c;
+                loaded.items = true; checkStatus();
+            });
+        
+            // 2. Поток загрузки гайда (T3)
+            // Раз мы уже получили data.html в начале, гайд "готов" почти сразу, 
+            // но чтобы галочка T3 не загоралась мгновенно, мы можем сделать 
+            // честный fetch самого файла guide.html, если хотим видеть процесс
+            fetch(`guide.html?v=${v}`).then(r => r.text()).then(c => {
+                // Мы уже имеем window.guideData из API, но это для "честной" галочки T3
+                loaded.guide = true; 
+                checkStatus();
+            });
+        
+        } catch (e) {
+            showError('⚠️ ' + e.message);
         }
-    }
 
-    window.addEventListener('DOMContentLoaded', initAccess);
+    initAccess();
 </script>
 
 </body>
