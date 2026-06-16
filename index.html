@@ -141,45 +141,50 @@
         let token = urlParams.get('key') || localStorage.getItem('revival_token');
         
         if (!token) {
-            showError('❌ Токен не найден. Воспользуйтесь ссылкой от бота.');
+            showError('❌ Токен не найден.');
             return;
         }
-
-        localStorage.setItem('revival_token', token);
 
         try {
             // 1. Проверка доступа
             setTaskStatus('t1', 'loading');
             const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
-            if (!response.ok) throw new Error("Токен недействителен или истек.");
+            if (!response.ok) throw new Error("Токен недействителен.");
+            const data = await response.json();
+            window.guideData = data.html; // Сохраняем результат
             setTaskStatus('t1', 'done');
 
-            // ФАЗА 2: Загрузка баз в window
+            // 2. Параллельная загрузка 3-х баз (t2)
             setTaskStatus('t2', 'loading');
-            try {
-                // Мы используем eval или просто вставляем скрипты в head, чтобы данные стали глобальными
-                const [loot, svg, items] = await Promise.all([
-                    fetch('https://revivalbot.onrender.com/content/database_loot.js').then(r => r.text()),
-                    fetch('https://revivalbot.onrender.com/content/database_svg.js').then(r => r.text()),
-                    fetch('https://revivalbot.onrender.com/content/database_items.html').then(r => r.text())
-                ]);
-        
-                // Вставляем данные в текущую страницу
-                const scriptLoot = document.createElement('script'); scriptLoot.textContent = loot; document.head.appendChild(scriptLoot);
-                const scriptSvg = document.createElement('script'); scriptSvg.textContent = svg; document.head.appendChild(scriptSvg);
-                // База предметов (HTML) ложится в глобальную переменную или DOM
-                window.itemsHtmlData = items; 
-                
-                setTaskStatus('t2', 'done');
-        
-                // ФАЗА 3: Открываем гайд
-                document.open();
-                document.write(data.html); // Сюда прилетает сам guide.html
-                document.close();
-            } catch (e) {
-                showError('Ошибка загрузки баз: ' + e.message);
-            }
+            const dbUrls = [
+                'https://revivalbot.onrender.com/content/database_loot.js',
+                'https://revivalbot.onrender.com/content/database_svg.js',
+                'https://revivalbot.onrender.com/content/database_items.html'
+            ];
+
+            await Promise.all(dbUrls.map(url => fetch(url).then(r => r.text()).then(content => {
+                if (url.endsWith('.js')) {
+                    const s = document.createElement('script'); s.textContent = content; document.head.appendChild(s);
+                } else {
+                    window.itemsHtmlData = content;
+                }
+            })));
+            setTaskStatus('t2', 'done');
+
+            // 3. Загрузка "Гайда" (t3) — это визуальный шаг завершения
+            setTaskStatus('t3', 'loading');
+            await new Promise(r => setTimeout(r, 500)); // Эффект завершения
+            setTaskStatus('t3', 'done');
+
+            // 4. Финальный рендер
+            document.open();
+            document.write(window.guideData);
+            document.close();
+
+        } catch (error) {
+            showError('⚠️ ' + error.message);
         }
+    }
 
     window.addEventListener('DOMContentLoaded', initAccess);
 </script>
