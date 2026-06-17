@@ -121,6 +121,7 @@
     const BOT_API = "https://revivalbot.onrender.com";
     const CACHE_KEY = 'revival_guide_cache';
     const TOKEN_KEY = 'revival_token';
+    const CACHE_VERSION = '1.0.0'; // ← МЕНЯЙ ПРИ ОБНОВЛЕНИИ ГАЙДА!
 
     function setTaskStatus(id, status) {
         const task = document.getElementById(id);
@@ -153,36 +154,37 @@
         }
         localStorage.setItem(TOKEN_KEY, token);
 
-        // Проверяем кэш
+        // Проверяем кэш (с версией!)
         const cached = localStorage.getItem(CACHE_KEY);
         const cacheTime = localStorage.getItem(CACHE_KEY + '_time');
-        const isCacheValid = cached && cacheTime && (Date.now() - parseInt(cacheTime) < 24 * 60 * 60 * 1000);
+        const cachedVersion = localStorage.getItem(CACHE_KEY + '_version');
+        const isCacheValid = cached && cacheTime && 
+                             (Date.now() - parseInt(cacheTime) < 24 * 60 * 60 * 1000) &&
+                             cachedVersion === CACHE_VERSION;
 
         if (isCacheValid) {
             // Быстрый старт из кэша
             setTaskStatus('t1', 'cached');
             setTaskStatus('t2', 'cached');
             
-            // Показываем гайд из кэша мгновенно
             document.open();
             document.write(cached);
             document.close();
             
-            // В фоне проверяем токен и обновляем кэш если нужно
             try {
                 const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
                 if (response.ok) {
                     const data = await response.json();
-                    // Обновляем кэш
                     localStorage.setItem(CACHE_KEY, data.html);
                     localStorage.setItem(CACHE_KEY + '_time', Date.now().toString());
+                    localStorage.setItem(CACHE_KEY + '_version', CACHE_VERSION); // ← СОХРАНЯЕМ ВЕРСИЮ
                     setTaskStatus('t1', 'done');
                     setTaskStatus('t2', 'done');
                     console.log('✅ Кэш обновлен в фоне');
                 } else {
-                    // Токен протух - удаляем кэш
                     localStorage.removeItem(CACHE_KEY);
                     localStorage.removeItem(CACHE_KEY + '_time');
+                    localStorage.removeItem(CACHE_KEY + '_version');
                     localStorage.removeItem(TOKEN_KEY);
                     showError('⚠️ Сессия истекла. Запросите новую ссылку у бота.');
                 }
@@ -201,13 +203,12 @@
             if (!response.ok) throw new Error("Токен недействителен или истек.");
             const data = await response.json();
             
-            // Сохраняем в кэш
             localStorage.setItem(CACHE_KEY, data.html);
             localStorage.setItem(CACHE_KEY + '_time', Date.now().toString());
+            localStorage.setItem(CACHE_KEY + '_version', CACHE_VERSION); // ← СОХРАНЯЕМ ВЕРСИЮ
             
             setTaskStatus('t1', 'done');
             
-            // Подставляем HTML гайда
             document.open();
             document.write(data.html);
             document.close();
@@ -217,6 +218,7 @@
             localStorage.removeItem(TOKEN_KEY);
             localStorage.removeItem(CACHE_KEY);
             localStorage.removeItem(CACHE_KEY + '_time');
+            localStorage.removeItem(CACHE_KEY + '_version');
             setTaskStatus('t1', 'error');
             setTaskStatus('t2', 'error');
             showError('⚠️ Ошибка: ' + error.message);
