@@ -255,6 +255,18 @@
             // Токен проверен
             setTaskStatus(taskToken, 'done', 'доступ получен');
             localStorage.setItem(TOKEN_KEY, token);
+            
+            // Проверяем, что html есть
+            if (!data.html) {
+                throw new Error('Гайд не найден');
+            }
+
+            // Очищаем URL от ключа (чтобы не светился)
+            if (window.history?.replaceState) {
+                const url = new URL(window.location);
+                url.searchParams.delete('key');
+                window.history.replaceState({}, '', url);
+            }
 
             // Небольшая пауза для визуального эффекта
             await new Promise(resolve => setTimeout(resolve, 200));
