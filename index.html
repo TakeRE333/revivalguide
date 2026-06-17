@@ -4,14 +4,9 @@
     <meta charset="UTF-8">
     <title>Доступ к гайду | Asura BnS</title>
     <meta name="color-scheme" content="light">
-    <link rel="icon" href="data:image/jpg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAUABQDASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAcIBgn/xAAoEAACAgIBBAIBBAMAAAAAAAABAgMEBREABgcSIQgTCRQVIjFBYnH/xAAZAQABBQAAAAAAAAAAAAAAAAAGAwQFBwj/xAAmEQACAgEDAwMFAAAAAAAAAAABAgMRAAQSIQUiQQYxURQzYXGR/9oADAMBAAIRAxEAPwCrfNj5+X+317NdG9Gx2sbYo21pWs/WVZrLTBQ0kNeIoyr/AGEMrn0Q4Vd6bmJO3/zW7+dPdZ496fWt+1N+tK3MTmJnvJ9K+Jd5hIxCghtaTxOwdEHnV/JSeforur17H1FK652POXp7KpGw+5JHMsLqADpWiePx3/z/AByA/sGUxdGPKx1Yq1wBpL0zyhGdnPmWb2FPgfSIW2TrZAGiF/XzNNJv7aJVb4HmuP5Z5JsewzRCemNAnTtK+lAlBRZJQq7mF7Sbbuq+dopVCqxpmIz3i+PfeOLvr2txvVSUhjbUkktW5S+zzENiJyjgNr2p0GUn34sN++ORf8ZtO8nxoXJ3Y3SPMZm3eqvLH9byxaji8imz4nyica/1HHC2BnaJGk9yBf7yiuqRQQ66eLTfbDMF88AmuefH5ypd7fix2+79WYb3UeMlr5yvCIYszjZfptLGGLCNjorIoYkhZFYAkka2eR3p78a/aW9K+Qy9rqXNWTJrdnJLEPFSf4gQRx63s7I9+/RHHHEJIImmDsgJ+aGSOl6jrYtA8MczBQQQAxAB+aus1ti8XTw2Nq0KFaKnSqxLDBXhQKkSKNKqgegABrXHHHH2Def/2Q==">
+    <link rel="icon" href="data:image/jpg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAUABQDASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAcIBgn/xAAoEAACAgIBBAIBBAMAAAAAAAABAgMEBREAcQYhEiIxCBMUQSNRUmH/xAAZAQACAwEAAAAAAAAAAAAAAAAABwIDBAX/xAAiEQACAgIBBAMBAAAAAAAAAAAAAQIDBBEhAAUSUQYTMVH/2gAMAwEAAhEDEQA/AKt82Pn5f7fXs10b0bHaxv+DatZbMJYWWGpDKkay/Ixo29L6AAC7HPE8lZ+iJlhng4Dg4j6Uc2buNr2/te1vPxd+79U4wVXJm5lIPovqLh9k1dGfI2nmAi1EAewrI58A+HtJJHYABXK81I4HTk4w1OOjHVs2E5CaytiMD9zAnREoKqx6BAGwBvRI+MfNfIT1vrWeRLkCqgiWWZ0VSx3sP4CnqQu0IA+RK2MaD4+NzPStjWLMC4lU5fP/AIdiHEY3C1rMOKoRUq76HxNENpWPkGkPyZ2IO97djy39py3bT8n+1xkbH3eEwuZ2TtAhuPXO1s6nL0dHpKzUEEh6LzH1uT3G/q9QdmeO/jK87i5ixmExMIlr3ae9JHPiPDxLfq0dIx+ysR5NWCAHDdWj4+WzBcpRVqVmKmKjgyZxK7zRNrfojiDoWdAh33suQENi61ex2Oid+UVlXNS5HK57ksRdFpmaNrM8KTPCiKpmKkE9qy+nIIKgxwWPF0udD5adnu7i+O9n+TTHlMbgKFTHYutDSx9KGWg4j3kcc2vI0SSQEj9UUAQGI0B96dL1VlduxXuNy9l0/qvWmfXu+p2R5Kkhe+LMZe2LKSxwkqkzD5ZCEhC6qNEDe97P0eu0SJZq8MyKqLLGsgVWVwAwB0GUlWHkB0ykhgfvGc4G+Qv7n+Dh8zzfHyVHrT4i5HIeMaG3sTQazKsj0ElEVmVNYqMQhPm9rKviAdFl/njnDeWcPnL6K+2+zrI0Php26XP+RxS2e1J0qLmMls9x1nkdoIV/Y81YrXXjAH4jzb5aHl8k4bx3dO9qFfHZZqS3atq9m6piuWEhEcTiwrAgErGqjZ1+ILfduRbu3a/0/fs+3mOBwpU7gpehdx1iVdLobVpQoDRzssHsdB+3d2/8A03Z6NN7zz4k9U9XZWT+Su5OWpzVsyJxbCvDv47pIu/YpoZJWPwGx8WZUHfTzHK0c5VqZahbFxbtetOsvim1YoyNquw3sEbAHY8+fZ8NHqC4p/wDnU+NLe6un7I4gLBikwMRk0rIWjaKH0JD2oPgHlb1Pefb2RjTR3Tx7K9o19j5H3n/AJb13I4aMzR3FpMWWM2EjMpJZRKx3I+j1IAQ3RVy5iK2VpTUblWK5UnQxzQTIHR1PkFQ7BHTgnzx8fPXs7/H01fh5mB2r2/j0mK7w1SzhJ5nMrtMWZp41CM4UjYVnCHQJZ28x5c8bj6MGMowU6VaGlWgjWKGCCMJHGoGgqqBpQAAAAMDoi7X3Z+U6rGtW8jiut8/w7b38b7XO9ffrvfPQ7l7+r5PjJcFxFCHBU7MwnsjTzzp+FQVhk2CDrsT2fj/2kFWNILe2l1TxszsoWtLNNKzaz8isAbx9RwCdtv00/ukc6TVrX7ONXeByzRgyNLt7GjjINtZYisbyKo+u9izIbSovqJpAdEMDuE3HZ8Tw6j3B1HJHxWAs5SrWuv8AmKPDtUhMxBPxZwsi75dHw/Ew7B6C4j7hxecy+do47MUcjZxcrQ3YK8weSuxPQcBjonZ6PQPXPrxw/+3O++TtfyyxE6eWv8TzMt8M5X4qkfKzD9aaEWgmsDqhGsP+yvHlzCx4vIY2VHp3aklKdHUs8M6NG6keQ0rA7EoPnMfGfH/wCJP/9k=">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: linear-gradient(135deg, #2a1a3a 0%, #1e1230 100%);
             font-family: 'Segoe UI', 'Noto Sans', sans-serif;
@@ -22,7 +17,6 @@
             justify-content: center;
             padding: 20px;
         }
-
         .access-wrapper {
             max-width: 600px;
             width: 100%;
@@ -32,7 +26,6 @@
             padding: 20px;
             z-index: 2;
         }
-
         .access-card {
             background: #271e34;
             border-radius: 16px;
@@ -41,7 +34,6 @@
             border: 1px solid #5a3e7a;
             text-align: center;
         }
-
         h1 {
             color: #ffb347;
             font-size: 28px;
@@ -50,7 +42,6 @@
             border-bottom: 2px solid #5a3e7a;
             padding-bottom: 10px;
         }
-
         .task-list {
             text-align: left;
             margin: 20px auto;
@@ -58,7 +49,6 @@
             width: 100%;
             max-width: 350px;
         }
-
         .task {
             margin: 12px 0;
             font-size: 17px;
@@ -69,7 +59,6 @@
             padding: 6px 0;
             transition: all 0.3s ease;
         }
-
         .task .icon {
             width: 28px;
             height: 28px;
@@ -79,38 +68,26 @@
             justify-content: center;
             font-size: 18px;
         }
-
-        .task .label {
-            flex: 1;
-        }
-
+        .task .label { flex: 1; }
         .task .status {
             font-size: 13px;
             color: #888;
-            min-width: 60px;
+            min-width: 80px;
             text-align: right;
         }
-
-        .task.loading .status {
-            color: #ffb347;
+        .task.loading .status { color: #ffb347; animation: pulse 1s infinite; }
+        .task.done { color: #77dd77; }
+        .task.done .status { color: #77dd77; }
+        .task.error { color: #ff6b6b; }
+        .task.error .status { color: #ff6b6b; }
+        .task.instant { color: #77dd77; }
+        .task.instant .status { color: #77dd77; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
-
-        .task.done {
-            color: #77dd77;
-        }
-
-        .task.done .status {
-            color: #77dd77;
-        }
-
-        .task.error {
-            color: #ff6b6b;
-        }
-
-        .task.error .status {
-            color: #ff6b6b;
-        }
-
+        
         .spinner {
             border: 2px solid #5a3e7a;
             border-top: 2px solid #ffb347;
@@ -119,12 +96,10 @@
             height: 18px;
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         .error-box {
             background: rgba(255, 80, 80, 0.15);
             border: 1px solid #ff6b6b;
@@ -132,13 +107,11 @@
             padding: 20px;
             margin-top: 15px;
         }
-
         .error-text {
             color: #f5e6b8;
             font-size: 17px;
             line-height: 1.6;
         }
-
         .error-text code {
             background: rgba(255, 179, 71, 0.15);
             color: #ffe0a3;
@@ -149,18 +122,27 @@
             border: 1px solid rgba(255, 179, 71, 0.3);
             display: inline-block;
         }
-
         .info-text {
             font-size: 14px;
             color: #a090b0;
             margin-top: 15px;
         }
-
         .footer-image {
             margin-top: 20px;
             max-width: 100%;
             display: block;
         }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-cookie { background: #2d8a4e; color: #fff; }
+        .badge-check { background: #ffb347; color: #1e1230; }
+        .badge-loading { background: #5a3e7a; color: #fff; }
     </style>
 </head>
 <body>
@@ -188,14 +170,16 @@
 <script>
     const BOT_API = 'https://revivalbot.onrender.com';
     const TOKEN_KEY = 'revival_token';
+    const EXPIRES_KEY = 'revival_expires';
 
     const taskToken = document.getElementById('taskToken');
     const taskGuide = document.getElementById('taskGuide');
 
-    function setTaskStatus(taskEl, status, statusText) {
-        taskEl.classList.remove('loading', 'done', 'error');
+    function setTaskStatus(taskEl, status, statusText, extraClass = '') {
+        taskEl.classList.remove('loading', 'done', 'error', 'instant');
         const icon = taskEl.querySelector('.icon');
         const statusSpan = taskEl.querySelector('.status');
+        
         if (status === 'loading') {
             taskEl.classList.add('loading');
             icon.innerHTML = '<div class="spinner"></div>';
@@ -204,6 +188,10 @@
             taskEl.classList.add('done');
             icon.innerHTML = '✅';
             statusSpan.textContent = statusText || 'готово';
+        } else if (status === 'instant') {
+            taskEl.classList.add('instant', 'done');
+            icon.innerHTML = '✅';
+            statusSpan.innerHTML = statusText || 'готово <span class="status-badge badge-cookie">⚡ куки</span>';
         } else if (status === 'error') {
             taskEl.classList.add('error');
             icon.innerHTML = '❌';
@@ -225,21 +213,114 @@
         `;
     }
 
+    // ============ РАБОТА С КУКАМИ ============
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    function setCookie(name, value, expiresTimestamp) {
+        const date = new Date(expiresTimestamp * 1000);
+        const secure = location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/; SameSite=Lax${secure}`;
+    }
+
+    function deleteCookie(name) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    }
+
+    // ============ ПРОВЕРКА ТОКЕНА ИЗ КУК ============
+    function checkTokenFromCookie() {
+        const token = getCookie(TOKEN_KEY);
+        const expires = getCookie(EXPIRES_KEY);
+        
+        if (!token || !expires) {
+            return null;
+        }
+        
+        const now = Math.floor(Date.now() / 1000);
+        const expiresNum = parseInt(expires);
+        
+        if (expiresNum > now) {
+            return token;
+        } else {
+            deleteCookie(TOKEN_KEY);
+            deleteCookie(EXPIRES_KEY);
+            return null;
+        }
+    }
+
+    // ============ ЗАГРУЗКА ГАЙДА ============
+    function renderGuide(html) {
+        document.open();
+        document.write(html);
+        document.close();
+    }
+
+    // ============ ПОКАЗАТЬ ЗАГРУЗКУ ГАЙДА ============
+    function showGuideLoading() {
+        setTaskStatus(taskGuide, 'loading', 'загрузка...');
+    }
+
+    // ============ ОСНОВНАЯ ФУНКЦИЯ ============
     async function checkAccess() {
         const urlParams = new URLSearchParams(window.location.search);
-        let token = urlParams.get('key') || localStorage.getItem(TOKEN_KEY);
+        let tokenFromUrl = urlParams.get('key');
+        let tokenFromCookie = checkTokenFromCookie();
 
-        if (!token) {
+        // 🚀 СНАЧАЛА ПРОВЕРЯЕМ КУКИ (БЕЗ ЗАПРОСА К БОТУ)
+        if (tokenFromCookie) {
+            console.log('⚡ Токен из кук валиден, загружаем гайд без проверки!');
+            
+            // ✅ Мгновенная авторизация по кукам
+            setTaskStatus(taskToken, 'instant', 'доступ получен');
+            setTaskStatus(taskGuide, 'loading', 'загрузка...');
+            
+            try {
+                const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(tokenFromCookie)}`);
+                
+                if (!response.ok) {
+                    deleteCookie(TOKEN_KEY);
+                    deleteCookie(EXPIRES_KEY);
+                    throw new Error('Токен больше не активен');
+                }
+                
+                const data = await response.json();
+                
+                if (data.html) {
+                    if (data.expires_at) {
+                        setCookie(TOKEN_KEY, tokenFromCookie, data.expires_at);
+                        setCookie(EXPIRES_KEY, data.expires_at, data.expires_at);
+                    }
+                    
+                    setTaskStatus(taskGuide, 'done', 'загружено');
+                    renderGuide(data.html);
+                    return;
+                }
+            } catch (error) {
+                console.log('Ошибка при загрузке по кукам:', error);
+                deleteCookie(TOKEN_KEY);
+                deleteCookie(EXPIRES_KEY);
+                tokenFromCookie = null;
+            }
+        }
+
+        // ============================================
+        // ЕСЛИ КУКИ НЕ РАБОТАЮТ - ПРОВЕРЯЕМ ТОКЕН ИЗ URL
+        // ============================================
+        
+        if (!tokenFromUrl) {
             showError('❌ Токен не указан.', true);
             return;
         }
 
-        // Запускаем оба процесса параллельно
         setTaskStatus(taskToken, 'loading', 'проверка...');
         setTaskStatus(taskGuide, 'loading', 'загрузка...');
 
         try {
-            const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
+            const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(tokenFromUrl)}`);
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -251,30 +332,27 @@
             }
 
             const data = await response.json();
-            
-            // Токен проверен
-            setTaskStatus(taskToken, 'done', 'доступ получен');
-            localStorage.setItem(TOKEN_KEY, token);
-            
-            // Проверяем, что html есть
+
+            if (data.maintenance) {
+                showMaintenance(data.message);
+                return;
+            }
+
             if (!data.html) {
                 throw new Error('Гайд не найден');
             }
 
-            // Очищаем URL от ключа (чтобы не светился)
-            if (window.history?.replaceState) {
-                const url = new URL(window.location);
-                url.searchParams.delete('key');
-                window.history.replaceState({}, '', url);
+            // ✅ ТОКЕН ВАЛИДЕН - СОХРАНЯЕМ В КУКИ
+            if (data.expires_at) {
+                setCookie(TOKEN_KEY, tokenFromUrl, data.expires_at);
+                setCookie(EXPIRES_KEY, data.expires_at, data.expires_at);
+                console.log(`✅ Токен сохранен в куки до ${new Date(data.expires_at * 1000).toLocaleString()}`);
             }
 
-            // Небольшая пауза для визуального эффекта
+            setTaskStatus(taskToken, 'done', 'доступ получен');
             await new Promise(resolve => setTimeout(resolve, 200));
-
-            // Загружаем гайд
-            document.open();
-            document.write(data.html);
-            document.close();
+            
+            renderGuide(data.html);
 
         } catch (error) {
             console.error('Ошибка:', error);
@@ -284,6 +362,29 @@
         }
     }
 
+    // ============ ЗАГЛУШКА ДЛЯ ТЕХ. РАБОТ ============
+    function showMaintenance(message) {
+        const mainCard = document.getElementById('mainCard');
+        mainCard.innerHTML = `
+            <h1>🔧 Технические работы</h1>
+            <div class="error-box" style="border-color: #ffb347; background: rgba(255, 179, 71, 0.1);">
+                <p class="error-text" style="color: #ffb347; font-size: 20px;">⚙️ ${message}</p>
+                <p class="info-text" style="margin-top: 15px;">Гайд временно недоступен. Мы обновляем контент!</p>
+                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                    <span style="background: rgba(255, 179, 71, 0.2); padding: 5px 15px; border-radius: 20px; color: #ffb347; font-size: 13px;">
+                        ⏱️ ~15-30 минут
+                    </span>
+                </div>
+                <button onclick="location.reload()" style="margin-top: 20px; background: #ffb347; border: none; color: #1e1230; padding: 10px 30px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                    🔄 Проверить снова
+                </button>
+            </div>
+        `;
+        setTaskStatus(taskToken, 'loading', 'режим обслуживания');
+        setTaskStatus(taskGuide, 'loading', 'ожидание...');
+    }
+
+    // Запуск
     checkAccess();
 </script>
 
