@@ -55,6 +55,8 @@
             text-align: left;
             margin: 20px auto;
             display: inline-block;
+            width: 100%;
+            max-width: 350px;
         }
 
         .task {
@@ -63,15 +65,50 @@
             color: #d0c0e0;
             display: flex;
             align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+            transition: all 0.3s ease;
         }
 
-        .icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 12px;
+        .task .icon {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 18px;
+        }
+
+        .task .label {
+            flex: 1;
+        }
+
+        .task .status {
+            font-size: 13px;
+            color: #888;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .task.loading .status {
+            color: #ffb347;
+        }
+
+        .task.done {
+            color: #77dd77;
+        }
+
+        .task.done .status {
+            color: #77dd77;
+        }
+
+        .task.error {
+            color: #ff6b6b;
+        }
+
+        .task.error .status {
+            color: #ff6b6b;
         }
 
         .spinner {
@@ -88,12 +125,35 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error {
-            color: #ff6b6b;
-            padding: 20px;
-            background: rgba(255, 80, 80, 0.1);
+        .error-box {
+            background: rgba(255, 80, 80, 0.15);
             border: 1px solid #ff6b6b;
             border-radius: 16px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .error-text {
+            color: #f5e6b8;
+            font-size: 17px;
+            line-height: 1.6;
+        }
+
+        .error-text code {
+            background: rgba(255, 179, 71, 0.15);
+            color: #ffe0a3;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 1.1em;
+            border: 1px solid rgba(255, 179, 71, 0.3);
+            display: inline-block;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #a090b0;
+            margin-top: 15px;
         }
 
         .footer-image {
@@ -104,13 +164,21 @@
     </style>
 </head>
 <body>
-<div id="app-root"></div>
+
 <div class="access-wrapper">
     <div class="access-card" id="mainCard">
         <h1>Авторизация</h1>
         <div class="task-list">
-            <div class="task" id="t1"><div class="icon">○</div> Проверка доступа</div>
-            <div class="task" id="t2"><div class="icon">○</div> Загрузка гайда</div>
+            <div class="task" id="taskToken">
+                <span class="icon">○</span>
+                <span class="label">Проверка доступа</span>
+                <span class="status">ожидание</span>
+            </div>
+            <div class="task" id="taskGuide">
+                <span class="icon">○</span>
+                <span class="label">Загрузка гайда</span>
+                <span class="status">ожидание</span>
+            </div>
         </div>
     </div>
 </div>
@@ -118,99 +186,104 @@
 <img class="footer-image" src="revival_1.png" alt="Revival Art">
 
 <script>
-    const BOT_API = "https://revivalbot.onrender.com";
+    const BOT_API = 'https://revivalbot.onrender.com';
     const TOKEN_KEY = 'revival_token';
 
-    function setTaskStatus(id, status) {
-        const task = document.getElementById(id);
-        const icon = task.querySelector('.icon');
+    const taskToken = document.getElementById('taskToken');
+    const taskGuide = document.getElementById('taskGuide');
+
+    function setTaskStatus(taskEl, status, statusText) {
+        // Сброс классов
+        taskEl.classList.remove('loading', 'done', 'error');
+        
+        const icon = taskEl.querySelector('.icon');
+        const statusSpan = taskEl.querySelector('.status');
+        
         if (status === 'loading') {
+            taskEl.classList.add('loading');
             icon.innerHTML = '<div class="spinner"></div>';
+            statusSpan.textContent = statusText || 'загрузка...';
         } else if (status === 'done') {
+            taskEl.classList.add('done');
             icon.innerHTML = '✅';
-            task.style.color = '#77dd77';
+            statusSpan.textContent = statusText || 'готово';
         } else if (status === 'error') {
+            taskEl.classList.add('error');
             icon.innerHTML = '❌';
-            task.style.color = '#ff6b6b';
+            statusSpan.textContent = statusText || 'ошибка';
         }
     }
 
-    function showError(msg) {
-        document.getElementById('mainCard').innerHTML = `<div class="error">${msg}</div>`;
+    function showError(message, showGuideHint = false) {
+        const mainCard = document.getElementById('mainCard');
+        mainCard.innerHTML = `
+            <h1>Доступ к гайду</h1>
+            <div class="error-box">
+                <p class="error-text">${message}</p>
+                ${showGuideHint ? `
+                    <p class="error-text" style="margin-top:10px;">Напишите в любом текстовом канале команду <code>/guide</code></p>
+                    <p class="info-text">Бот выдаст вам персональную ссылку</p>
+                ` : ''}
+            </div>
+        `;
     }
 
-    async function initAccess() {
+    async function checkAccess() {
         const urlParams = new URLSearchParams(window.location.search);
         let token = urlParams.get('key') || localStorage.getItem(TOKEN_KEY);
-        
-        if (!token) { 
-            showError('❌ Токен не найден. Перейдите по ссылке из бота.'); 
-            return; 
-        }
-        localStorage.setItem(TOKEN_KEY, token);
 
-        // ШАГ 1: Проверка токена (реальная)
-        setTaskStatus('t1', 'loading');
-        setTaskStatus('t2', 'loading');
+        if (!token) {
+            showError('❌ Токен не указан.', true);
+            return;
+        }
+
+        // Шаг 1: Проверка токена
+        setTaskStatus(taskToken, 'loading', 'проверка...');
 
         try {
-            const startTime = Date.now();
             const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
-            
-            // Реальное время проверки токена
-            const tokenCheckTime = Date.now() - startTime;
-            console.log(`⏱️ Проверка токена: ${tokenCheckTime}мс`);
-            
-            if (!response.ok) throw new Error("Токен недействителен или истек.");
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                setTaskStatus(taskToken, 'error', 'отказ');
+                localStorage.removeItem(TOKEN_KEY);
+                showError(`❌ ${errorText || 'Доступ запрещён'}`, false);
+                return;
+            }
+
             const data = await response.json();
-            
-            setTaskStatus('t1', 'done'); // ✅ Реально: токен проверен
+            setTaskStatus(taskToken, 'done', 'доступ получен');
 
-            // ШАГ 2: Загрузка и рендеринг гайда (реальный)
-            // Создаем iframe для честного отслеживания загрузки
-            const iframe = document.createElement('iframe');
-            iframe.style.cssText = 'width:100vw; height:100vh; border:none; position:fixed; top:0; left:0; z-index:9999; background:#1e1230; display:none;';
-            document.body.appendChild(iframe);
+            // Сохраняем токен
+            localStorage.setItem(TOKEN_KEY, token);
 
-            // Когда iframe загрузится - значит гайд реально отрисовался
-            iframe.onload = function() {
-                const renderTime = Date.now() - startTime;
-                console.log(`⏱️ Полная загрузка гайда: ${renderTime}мс`);
-                setTaskStatus('t2', 'done'); // ✅ Реально: гайд загружен и отрисован
-                
-                // Показываем iframe
-                iframe.style.display = 'block';
-                
-                // Скрываем загрузчик
-                document.querySelector('.access-wrapper').style.display = 'none';
-                document.querySelector('.footer-image').style.display = 'none';
-            };
+            // Шаг 2: Загрузка гайда
+            setTaskStatus(taskGuide, 'loading', 'загрузка...');
 
-            // Загружаем HTML в iframe
-            const blob = new Blob([data.html], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            iframe.src = url;
+            // Небольшая задержка для визуального эффекта (100-200мс)
+            await new Promise(resolve => setTimeout(resolve, 150));
 
-            // Таймаут на всякий случай (если что-то пойдет не так)
-            setTimeout(() => {
-                if (document.getElementById('t2').style.color !== '#77dd77') {
-                    console.warn('⚠️ Таймаут загрузки гайда, показываем принудительно');
-                    iframe.style.display = 'block';
-                    document.querySelector('.access-wrapper').style.display = 'none';
-                    document.querySelector('.footer-image').style.display = 'none';
-                    setTaskStatus('t2', 'done');
-                }
-            }, 10000);
+            // Загружаем гайд
+            document.open();
+            document.write(data.html);
+            document.close();
+
+            // После document.close() скрипт продолжает выполняться, но страница уже заменена
+            // Поэтому отмечаем загрузку как завершённую до замены
+            // (галочка появится на долю секунды перед заменой)
+            setTaskStatus(taskGuide, 'done', 'гайд загружен');
 
         } catch (error) {
-            localStorage.removeItem(TOKEN_KEY);
-            setTaskStatus('t1', 'error');
-            setTaskStatus('t2', 'error');
-            showError('⚠️ Ошибка: ' + error.message);
+            console.error('Ошибка:', error);
+            setTaskStatus(taskToken, 'error', 'ошибка');
+            setTaskStatus(taskGuide, 'error', 'не загружен');
+            showError('⚠️ Ошибка соединения с сервером. Проверьте интернет.', false);
         }
     }
 
-    window.addEventListener('DOMContentLoaded', initAccess);
+    // Запускаем проверку
+    checkAccess();
 </script>
+
 </body>
 </html>
