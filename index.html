@@ -193,12 +193,9 @@
     const taskGuide = document.getElementById('taskGuide');
 
     function setTaskStatus(taskEl, status, statusText) {
-        // Сброс классов
         taskEl.classList.remove('loading', 'done', 'error');
-        
         const icon = taskEl.querySelector('.icon');
         const statusSpan = taskEl.querySelector('.status');
-        
         if (status === 'loading') {
             taskEl.classList.add('loading');
             icon.innerHTML = '<div class="spinner"></div>';
@@ -237,8 +234,9 @@
             return;
         }
 
-        // Шаг 1: Проверка токена
+        // Запускаем оба процесса параллельно
         setTaskStatus(taskToken, 'loading', 'проверка...');
+        setTaskStatus(taskGuide, 'loading', 'загрузка...');
 
         try {
             const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
@@ -246,32 +244,25 @@
             if (!response.ok) {
                 const errorText = await response.text();
                 setTaskStatus(taskToken, 'error', 'отказ');
+                setTaskStatus(taskGuide, 'error', 'отменено');
                 localStorage.removeItem(TOKEN_KEY);
                 showError(`❌ ${errorText || 'Доступ запрещён'}`, false);
                 return;
             }
 
             const data = await response.json();
+            
+            // Токен проверен
             setTaskStatus(taskToken, 'done', 'доступ получен');
-
-            // Сохраняем токен
             localStorage.setItem(TOKEN_KEY, token);
 
-            // Шаг 2: Загрузка гайда
-            setTaskStatus(taskGuide, 'loading', 'загрузка...');
-
-            // Небольшая задержка для визуального эффекта (100-200мс)
-            await new Promise(resolve => setTimeout(resolve, 150));
+            // Небольшая пауза для визуального эффекта
+            await new Promise(resolve => setTimeout(resolve, 200));
 
             // Загружаем гайд
             document.open();
             document.write(data.html);
             document.close();
-
-            // После document.close() скрипт продолжает выполняться, но страница уже заменена
-            // Поэтому отмечаем загрузку как завершённую до замены
-            // (галочка появится на долю секунды перед заменой)
-            setTaskStatus(taskGuide, 'done', 'гайд загружен');
 
         } catch (error) {
             console.error('Ошибка:', error);
@@ -281,7 +272,6 @@
         }
     }
 
-    // Запускаем проверку
     checkAccess();
 </script>
 
