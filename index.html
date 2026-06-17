@@ -129,6 +129,9 @@
         } else if (status === 'done') {
             icon.innerHTML = '✅';
             task.style.color = '#77dd77';
+        } else if (status === 'error') {
+            icon.innerHTML = '❌';
+            task.style.color = '#ff6b6b';
         }
     }
 
@@ -140,51 +143,57 @@
         const urlParams = new URLSearchParams(window.location.search);
         let token = urlParams.get('key') || localStorage.getItem('revival_token');
         
-        if (!token) { showError('❌ Токен не найден.'); return; }
+        if (!token) { 
+            showError('❌ Токен не найден. Перейдите по ссылке из бота.'); 
+            return; 
+        }
         localStorage.setItem('revival_token', token);
 
         try {
             // 1. Проверка доступа
             setTaskStatus('t1', 'loading');
             const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
-            if (!response.ok) throw new Error("Токен недействителен.");
-            const data = await response.json(); 
+            if (!response.ok) throw new Error("Токен недействителен или истек.");
+            const data = await response.json();
             setTaskStatus('t1', 'done');
 
-            // 2. Загрузка всех баз данных (t2)
+            // 2. Загрузка всех баз данных в localStorage
             setTaskStatus('t2', 'loading');
             const baseUrl = "https://revivalbot.onrender.com/content/";
-            const v = Date.now(); // Для сброса кэша
+            const v = Date.now(); // Кэш-бастер
 
-            // Качаем всё параллельно, но ждем окончания всех
-            await Promise.all([
-                fetch(`${baseUrl}database_loot.js?v=${v}`).then(r => r.text()).then(c => {
-                    const s = document.createElement('script'); s.textContent = c; document.head.appendChild(s);
-                }),
-                fetch(`${baseUrl}database_svg.js?v=${v}`).then(r => r.text()).then(c => {
-                    const s = document.createElement('script'); s.textContent = c; document.head.appendChild(s);
-                }),
-                fetch(`${baseUrl}database_items.html?v=${v}`).then(r => r.text()).then(c => {
-                    window.itemsHtmlData = c; // Сохраняем HTML базы предметов в глобальную переменную
-                })
+            // Загружаем все параллельно
+            const [lootScript, svgScript, itemsHtml] = await Promise.all([
+                fetch(`${baseUrl}database_loot.js?v=${v}`).then(r => r.text()),
+                fetch(`${baseUrl}database_svg.js?v=${v}`).then(r => r.text()),
+                fetch(`${baseUrl}database_items.html?v=${v}`).then(r => r.text())
             ]);
+
+            // Сохраняем в localStorage
+            localStorage.setItem('revival_loot_db', lootScript);
+            localStorage.setItem('revival_svg_db', svgScript);
+            localStorage.setItem('revival_items_db', itemsHtml);
+            localStorage.setItem('revival_guide_html', data.html);
+            localStorage.setItem('revival_token', token);
+            
             setTaskStatus('t2', 'done');
 
-            // 3. Финальный рендер гайда (t3)
+            // 3. Переход на guide.html
             setTaskStatus('t3', 'loading');
-            document.open();
-            document.write(data.html); // Переход на guide.html
-            document.close();
-            setTaskStatus('t3', 'done');
+            
+            // Небольшая задержка для визуального эффекта
+            setTimeout(() => {
+                window.location.href = 'guide.html?key=' + encodeURIComponent(token);
+            }, 500);
 
         } catch (error) {
             localStorage.removeItem('revival_token');
-            showError('⚠️ ' + error.message);
+            setTaskStatus('t2', 'error');
+            showError('⚠️ Ошибка загрузки: ' + error.message);
         }
     }
 
     window.addEventListener('DOMContentLoaded', initAccess);
 </script>
-
 </body>
 </html>
