@@ -119,9 +119,7 @@
 
 <script>
     const BOT_API = "https://revivalbot.onrender.com";
-    const CACHE_KEY = 'revival_guide_cache';
     const TOKEN_KEY = 'revival_token';
-    const CACHE_VERSION = '1.0.0'; // ← МЕНЯЙ ПРИ ОБНОВЛЕНИИ ГАЙДА!
 
     function setTaskStatus(id, status) {
         const task = document.getElementById(id);
@@ -134,9 +132,6 @@
         } else if (status === 'error') {
             icon.innerHTML = '❌';
             task.style.color = '#ff6b6b';
-        } else if (status === 'cached') {
-            icon.innerHTML = '⚡';
-            task.style.color = '#ffb347';
         }
     }
 
@@ -154,71 +149,61 @@
         }
         localStorage.setItem(TOKEN_KEY, token);
 
-        // Проверяем кэш (с версией!)
-        const cached = localStorage.getItem(CACHE_KEY);
-        const cacheTime = localStorage.getItem(CACHE_KEY + '_time');
-        const cachedVersion = localStorage.getItem(CACHE_KEY + '_version');
-        const isCacheValid = cached && cacheTime && 
-                             (Date.now() - parseInt(cacheTime) < 24 * 60 * 60 * 1000) &&
-                             cachedVersion === CACHE_VERSION;
-
-        if (isCacheValid) {
-            // Быстрый старт из кэша
-            setTaskStatus('t1', 'cached');
-            setTaskStatus('t2', 'cached');
-            
-            document.open();
-            document.write(cached);
-            document.close();
-            
-            try {
-                const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    localStorage.setItem(CACHE_KEY, data.html);
-                    localStorage.setItem(CACHE_KEY + '_time', Date.now().toString());
-                    localStorage.setItem(CACHE_KEY + '_version', CACHE_VERSION); // ← СОХРАНЯЕМ ВЕРСИЮ
-                    setTaskStatus('t1', 'done');
-                    setTaskStatus('t2', 'done');
-                    console.log('✅ Кэш обновлен в фоне');
-                } else {
-                    localStorage.removeItem(CACHE_KEY);
-                    localStorage.removeItem(CACHE_KEY + '_time');
-                    localStorage.removeItem(CACHE_KEY + '_version');
-                    localStorage.removeItem(TOKEN_KEY);
-                    showError('⚠️ Сессия истекла. Запросите новую ссылку у бота.');
-                }
-            } catch (e) {
-                console.warn('Фоновая проверка не удалась, но гайд из кэша работает');
-            }
-            return;
-        }
-
-        // Нет кэша - загружаем
+        // ШАГ 1: Проверка токена (реальная)
         setTaskStatus('t1', 'loading');
         setTaskStatus('t2', 'loading');
 
         try {
+            const startTime = Date.now();
             const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
+            
+            // Реальное время проверки токена
+            const tokenCheckTime = Date.now() - startTime;
+            console.log(`⏱️ Проверка токена: ${tokenCheckTime}мс`);
+            
             if (!response.ok) throw new Error("Токен недействителен или истек.");
             const data = await response.json();
             
-            localStorage.setItem(CACHE_KEY, data.html);
-            localStorage.setItem(CACHE_KEY + '_time', Date.now().toString());
-            localStorage.setItem(CACHE_KEY + '_version', CACHE_VERSION); // ← СОХРАНЯЕМ ВЕРСИЮ
-            
-            setTaskStatus('t1', 'done');
-            
-            document.open();
-            document.write(data.html);
-            document.close();
-            setTaskStatus('t2', 'done');
+            setTaskStatus('t1', 'done'); // ✅ Реально: токен проверен
+
+            // ШАГ 2: Загрузка и рендеринг гайда (реальный)
+            // Создаем iframe для честного отслеживания загрузки
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'width:100vw; height:100vh; border:none; position:fixed; top:0; left:0; z-index:9999; background:#1e1230; display:none;';
+            document.body.appendChild(iframe);
+
+            // Когда iframe загрузится - значит гайд реально отрисовался
+            iframe.onload = function() {
+                const renderTime = Date.now() - startTime;
+                console.log(`⏱️ Полная загрузка гайда: ${renderTime}мс`);
+                setTaskStatus('t2', 'done'); // ✅ Реально: гайд загружен и отрисован
+                
+                // Показываем iframe
+                iframe.style.display = 'block';
+                
+                // Скрываем загрузчик
+                document.querySelector('.access-wrapper').style.display = 'none';
+                document.querySelector('.footer-image').style.display = 'none';
+            };
+
+            // Загружаем HTML в iframe
+            const blob = new Blob([data.html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            iframe.src = url;
+
+            // Таймаут на всякий случай (если что-то пойдет не так)
+            setTimeout(() => {
+                if (document.getElementById('t2').style.color !== '#77dd77') {
+                    console.warn('⚠️ Таймаут загрузки гайда, показываем принудительно');
+                    iframe.style.display = 'block';
+                    document.querySelector('.access-wrapper').style.display = 'none';
+                    document.querySelector('.footer-image').style.display = 'none';
+                    setTaskStatus('t2', 'done');
+                }
+            }, 10000);
 
         } catch (error) {
             localStorage.removeItem(TOKEN_KEY);
-            localStorage.removeItem(CACHE_KEY);
-            localStorage.removeItem(CACHE_KEY + '_time');
-            localStorage.removeItem(CACHE_KEY + '_version');
             setTaskStatus('t1', 'error');
             setTaskStatus('t2', 'error');
             showError('⚠️ Ошибка: ' + error.message);
