@@ -110,8 +110,7 @@
         <h1>Авторизация</h1>
         <div class="task-list">
             <div class="task" id="t1"><div class="icon">○</div> Проверка доступа</div>
-            <div class="task" id="t2"><div class="icon">○</div> Загрузка базы данных</div>
-            <div class="task" id="t3"><div class="icon">○</div> Загрузка гайда</div>
+            <div class="task" id="t2"><div class="icon">○</div> Загрузка гайда</div>
         </div>
     </div>
 </div>
@@ -120,6 +119,8 @@
 
 <script>
     const BOT_API = "https://revivalbot.onrender.com";
+    const CACHE_KEY = 'revival_guide_cache';
+    const TOKEN_KEY = 'revival_token';
 
     function setTaskStatus(id, status) {
         const task = document.getElementById(id);
@@ -132,6 +133,9 @@
         } else if (status === 'error') {
             icon.innerHTML = '❌';
             task.style.color = '#ff6b6b';
+        } else if (status === 'cached') {
+            icon.innerHTML = '⚡';
+            task.style.color = '#ffb347';
         }
     }
 
@@ -141,55 +145,81 @@
 
     async function initAccess() {
         const urlParams = new URLSearchParams(window.location.search);
-        let token = urlParams.get('key') || localStorage.getItem('revival_token');
+        let token = urlParams.get('key') || localStorage.getItem(TOKEN_KEY);
         
         if (!token) { 
             showError('❌ Токен не найден. Перейдите по ссылке из бота.'); 
             return; 
         }
-        localStorage.setItem('revival_token', token);
+        localStorage.setItem(TOKEN_KEY, token);
+
+        // Проверяем кэш
+        const cached = localStorage.getItem(CACHE_KEY);
+        const cacheTime = localStorage.getItem(CACHE_KEY + '_time');
+        const isCacheValid = cached && cacheTime && (Date.now() - parseInt(cacheTime) < 24 * 60 * 60 * 1000);
+
+        if (isCacheValid) {
+            // Быстрый старт из кэша
+            setTaskStatus('t1', 'cached');
+            setTaskStatus('t2', 'cached');
+            
+            // Показываем гайд из кэша мгновенно
+            document.open();
+            document.write(cached);
+            document.close();
+            
+            // В фоне проверяем токен и обновляем кэш если нужно
+            try {
+                const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // Обновляем кэш
+                    localStorage.setItem(CACHE_KEY, data.html);
+                    localStorage.setItem(CACHE_KEY + '_time', Date.now().toString());
+                    setTaskStatus('t1', 'done');
+                    setTaskStatus('t2', 'done');
+                    console.log('✅ Кэш обновлен в фоне');
+                } else {
+                    // Токен протух - удаляем кэш
+                    localStorage.removeItem(CACHE_KEY);
+                    localStorage.removeItem(CACHE_KEY + '_time');
+                    localStorage.removeItem(TOKEN_KEY);
+                    showError('⚠️ Сессия истекла. Запросите новую ссылку у бота.');
+                }
+            } catch (e) {
+                console.warn('Фоновая проверка не удалась, но гайд из кэша работает');
+            }
+            return;
+        }
+
+        // Нет кэша - загружаем
+        setTaskStatus('t1', 'loading');
+        setTaskStatus('t2', 'loading');
 
         try {
-            // 1. Проверка доступа
-            setTaskStatus('t1', 'loading');
             const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(token)}`);
             if (!response.ok) throw new Error("Токен недействителен или истек.");
             const data = await response.json();
-            setTaskStatus('t1', 'done');
-
-            // 2. Загрузка всех баз данных в localStorage
-            setTaskStatus('t2', 'loading');
-            const baseUrl = "https://revivalbot.onrender.com/content/";
-            const v = Date.now(); // Кэш-бастер
-
-            // Загружаем все параллельно
-            const [lootScript, svgScript, itemsHtml] = await Promise.all([
-                fetch(`${baseUrl}database_loot.js?v=${v}`).then(r => r.text()),
-                fetch(`${baseUrl}database_svg.js?v=${v}`).then(r => r.text()),
-                fetch(`${baseUrl}database_items.html?v=${v}`).then(r => r.text())
-            ]);
-
-            // Сохраняем в localStorage
-            localStorage.setItem('revival_loot_db', lootScript);
-            localStorage.setItem('revival_svg_db', svgScript);
-            localStorage.setItem('revival_items_db', itemsHtml);
-            localStorage.setItem('revival_guide_html', data.html);
-            localStorage.setItem('revival_token', token);
             
+            // Сохраняем в кэш
+            localStorage.setItem(CACHE_KEY, data.html);
+            localStorage.setItem(CACHE_KEY + '_time', Date.now().toString());
+            
+            setTaskStatus('t1', 'done');
+            
+            // Подставляем HTML гайда
+            document.open();
+            document.write(data.html);
+            document.close();
             setTaskStatus('t2', 'done');
 
-            // 3. Переход на guide.html
-            setTaskStatus('t3', 'loading');
-            
-            // Небольшая задержка для визуального эффекта
-            setTimeout(() => {
-                window.location.href = 'guide.html?key=' + encodeURIComponent(token);
-            }, 500);
-
         } catch (error) {
-            localStorage.removeItem('revival_token');
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(CACHE_KEY);
+            localStorage.removeItem(CACHE_KEY + '_time');
+            setTaskStatus('t1', 'error');
             setTaskStatus('t2', 'error');
-            showError('⚠️ Ошибка загрузки: ' + error.message);
+            showError('⚠️ Ошибка: ' + error.message);
         }
     }
 
