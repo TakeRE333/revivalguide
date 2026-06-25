@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Гайд Asura BnS</title>
+	<meta name="color-scheme" content="light">
+    
+<style>
+		:root {
+			color-scheme: light !important;
+		}
+		/* 1. БАЗОВЫЕ СБРОСЫ И ШРИФТЫ */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			background: linear-gradient(135deg, #2a1a3a 0%, #1e1230 100%);
+			font-family: 'Segoe UI', 'Noto Sans', sans-serif;
+			margin: 0;
+			padding: 15px;
+			min-height: 100vh;
+			display: flex;
+			align-items: flex-start;
+		}
+
+		/* 2. СТРУКТУРА КОНТЕЙНЕРОВ */
+		.guide-container {
+			width: 100%;
+			background: #2a1e3a;
+			border-radius: 24px;
+			box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+			display: flex;
+			gap: 20px;
+			padding: 20px;
+		}
+
+		.sidebar {
+			width: 280px;
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+
+			position: -webkit-sticky;
+			position: sticky;
+			top: 15px;
+			align-self: flex-start;
+			height: fit-content;
+		}
+
+		.content-panel {
+			flex: 1;
+			background: #3d2a52;
+			border-radius: 20px;
+			padding: 20px;
+			min-height: 85vh;
+		}
+
+		.content-inner {
+			background: #271e34;
+			border-radius: 16px;
+			padding: 16px 20px;
+			box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+			border: 1px solid #5a3e7a;
+			min-height: 100%;
+		}
+
+		/* 3. КНОПКИ МЕНЮ */
+		.section-btn {
+			background: linear-gradient(135deg, #3d2a52 0%, #2a1a3a 100%);
+			border: none;
+			padding: 12px 18px;
+			border-radius: 60px;
+			font-size: 15px;
+			font-weight: 500;
+			text-align: left;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+			color: #ffcf8a;
+			letter-spacing: 1px;
+			border-left: 3px solid transparent;
+		}
+
+		.section-btn:hover, .section-btn.active {
+			transform: translateX(4px);
+			background: linear-gradient(135deg, #5a3e7a 0%, #3d2a52 100%);
+			border-left: 3px solid #ffb347;
+			color: #ffe0a3;
+		}
+
+		/* 4. ТИПОГРАФИКА */
+		.content-inner h2 {
+			color: #ffb347;
+			font-size: 26px;
+			margin-bottom: 8px;
+			padding-bottom: 6px;
+			border-bottom: 2px solid #5a3e7a;
+			font-weight: 500;
+		}
+
+		.content-inner p, .content-inner li {
+			color: #f5e6b8;
+			line-height: 1.6;
+			font-size: 16px;
+			margin-bottom: 10px;
+		}
+
+		.yellow-text { color: #ffd966; font-weight: bold; }
+
+		/* Стили для кликабельных слов в тексте */
+		.content-inner a.yellow-text {
+			cursor: pointer;
+			transition: color 0.2s;
+		}
+		.content-inner a.yellow-text:hover {
+			color: #ffb347;
+		}
+
+		.important {
+			background: rgba(255, 179, 71, 0.15);
+			border-left: 4px solid #ffb347;
+			padding: 10px 14px;
+			border-radius: 10px;
+			margin: 12px 0;
+			color: #ffe0a3;
+		}
+
+		/* 5. ИНТЕРАКТИВНЫЕ КАРТИНКИ И СХЕМЫ */
+		.schema-wrapper {
+			display: flex;
+			justify-content: center;
+			margin: 20px auto;
+			overflow-x: auto;
+			max-width: 100%;
+		}
+
+		.schema-img, .block-img {
+			display: block;
+			margin: 15px auto;
+			max-width: 100%;
+			height: auto;
+			border-radius: 12px;
+			cursor: pointer;
+		}
+
+		/* 6. SVG И ПОИСК ID */
+		svg * { pointer-events: all !important; }
+		svg > g > rect:first-child, svg > rect:first-child { pointer-events: none !important; }
+		[id^="anjiv"] { cursor: pointer; }
+
+		/* 7. ВСПЛЫВАЮЩИЕ ПОДСКАЗКИ (SVG) */
+		.hover-popup {
+			position: absolute;
+			z-index: 10000;
+			background: #1a1228;
+			border: 2px solid #ffb347;
+			border-radius: 12px;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+			display: none;
+			pointer-events: none !important;
+			max-width: 350px;
+			overflow: hidden;
+		}
+
+		.tooltip-container { display: flex; flex-direction: column; }
+		.tooltip-container img { width: 100%; height: auto; display: block; border-bottom: 1px solid #5a3e7a; }
+		.tooltip-content { padding: 10px; text-align: center; }
+		.tooltip-title { color: #ffb347; font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+		.tooltip-text { color: #f5e6b8; font-size: 13px; line-height: 1.4; }
+
+		/* --- 8. ИКОНКИ С КАРТИНКАМИ ИЗ БАЗЫ (HINT-BOX) --- */
+		.hint-box {
+			display: inline-block;
+			position: relative;
+			vertical-align: middle;
+			margin: 0 3px;
+		}
+
+		/* Иконка 25х25 */
+		.hint-box .hint-icon {
+			width: 25px !important;
+			height: 25px !important;
+			display: block;
+			border: 1px solid #ffb347; 
+			border-radius: 4px;
+			object-fit: cover;
+		}
+
+		/* Всплывающее окно базы лута */
+		.hint-content {
+			display: none;
+			position: absolute;
+			bottom: calc(100% + 10px);
+			left: 50%;
+			transform: translateX(-50%);
+			width: max-content;   
+			max-width: 600px;     
+			background: #1a1228;
+			border: 2px solid #ffb347;
+			border-radius: 12px;
+			z-index: 99999;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+			overflow: hidden;
+			pointer-events: none;
+		}
+
+		/* ВОТ ЭТО ПРАВИЛО ИСПРАВИТ ЛУТ: */
+		.hint-content img {
+			display: block !important;   /* Превращает инлайновую картинку в блок и уничтожает зазор снизу */
+			max-width: 100%;
+			height: auto;
+			margin: 0 !important;
+			padding: 0 !important;
+		}
+
+		.hint-box:hover .hint-content { display: block !important; }
+
+		/* Большая всплывающая картинка предмета/лута */
+		.hint-img-large { 
+			max-width: 100%; 
+			height: auto; 
+			display: block;
+			border-bottom: none !important; /* Убрана фиолетовая полоса */
+		}
+		
+		/* Текст в hint-content больше никогда не нужен и не занимает место */
+		.hint-text { 
+			display: none !important; 
+		}
+
+		/* АДАПТИВНОСТЬ */
+		@media (max-width: 800px) {
+			.guide-container { flex-direction: column; }
+			.sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
+			.section-btn { flex: 1 0 auto; text-align: center; }
+		}
+		/* Контейнер для картинки на главной */
+		.welcome-image-container {
+            position: relative;
+            width: fit-content;
+            margin: 30px auto;
+            display: flex;
+            justify-content: center;
+            background: transparent; /* Чтобы не было лишних рамок */
+        }
+
+        .vignette img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            max-height: 450px;
+            
+            /* Настройки экстремального овального затухания */
+            -webkit-mask-image: radial-gradient(
+                ellipse 50% 80% at 50% 50%, 
+                black 40%, 
+                transparent 90%
+            );
+            mask-image: radial-gradient(
+                ellipse 50% 80% at 50% 50%, 
+                black 40%, 
+                transparent 90%
+            );
+        }
+		/* 9. Всплывающее окно для куска текста (цвет и стиль текста указывать вручную)*/
+		.hint-trigger {
+			position: relative;
+			display: inline-block;
+			cursor: help;
+		}
+
+		/* Показываем подсказку при наведении */
+		.hint-trigger:hover .hint-content {
+			display: block !important;
+		}
+		/*Плавная прокрутка*/
+		html {
+		scroll-behavior: smooth;
+		}
+		/*Цвет текста ссылок (по умолчанию)*/
+		.text-link {
+        color: inherit; /* или указать конкретный цвет, например #333333 */
+        text-decoration: underline;
+		}
+		.important a:hover {
+			color: orange;      /* при наведении курсора */
+		}
+
+		.important a:active {
+			color: red;         /* при нажатии */
+		}
+		/* ==========================================================================
+		   ПОЛНЫЙ И ИСПРАВЛЕННЫЙ БЛОК CSS ДЛЯ БАЗЫ ПРЕДМЕТОВ И ВАЛЮТЫ
+		   ========================================================================== */
+
+		/* Контейнер-обертка всей базы */
+		.database-wrapper {
+			margin-top: 15px;
+			width: 100%;
+		}
+
+		/* Красивый заголовок раздела */
+		.database-title {
+			color: #ffb347;
+			font-size: 22px;
+			margin-bottom: 12px;
+			padding-bottom: 6px;
+			border-bottom: 2px solid #5a3e7a;
+		}
+
+		/* Адаптивная обертка для прокрутки таблицы на телефонах */
+		.table-responsive {
+			width: 100%;
+			overflow-x: auto;
+			border-radius: 8px;
+			border: 1px solid #5a3e7a;
+		}
+
+		/* Сама таблица базы */
+		.items-table {
+			width: 100%;
+			border-collapse: collapse;
+			background: #1e152a;
+			color: #f5e6b8;
+			line-height: 1.3;
+		}
+
+		/* Шапка таблицы (заголовки столбцов) */
+		.items-table th {
+			background: linear-gradient(135deg, #4d3366 0%, #352249 100%);
+			color: #ffcf8a;
+			font-weight: 600;
+			text-transform: uppercase;
+			font-size: 12px;
+			letter-spacing: 0.5px;
+			padding: 8px 6px;
+			border-bottom: 2px solid #ffb347;
+			text-align: center;
+		}
+
+		/* Унифицированный размер шрифта и выравнивание для всех обычных ячеек таблицы */
+		.items-table td {
+			padding: 10px 10px;
+			border-bottom: 1px solid #3d2a52;
+			
+			/* Выравнивание всего текста описания строго по верхнему краю */
+			vertical-align: top; 
+			text-align: left;
+			
+			/* Жестко задаем размер шрифта для столбцов 3, 4, 5 как у названия предмета */
+			font-size: 13px !important; 
+			
+			/* Минимальная высота под иконку 65х65 + зазоры, но строка растет сама, если текста много */
+			min-height: 75px; 
+			height: auto; 
+		}
+
+		/* Сброс влияния сторонних тегов (p, div, li) на размер шрифта внутри ячеек */
+		.items-table td p,
+		.items-table td div,
+		.items-table td span,
+		.items-table td li,
+		.items-table td ul {
+			font-size: 13px !important; 
+			margin: 0 !important;
+			padding: 0;
+		}
+
+		/* Столбец №1: Зона иконки — теперь тоже жестко выровнен по ВЕРХНЕМУ краю */
+		.items-table td:first-child {
+			text-align: center;
+			vertical-align: top; /* Иконка теперь всегда будет прижата к верху */
+			width: 85px;
+			padding: 10px 4px; /* Выравниваем внутренний отступ с остальными ячейками */
+		}
+
+		/* Стандарт для основных иконок (65x65) */
+		.db-item-icon-large {
+			width: 65px !important;
+			height: 65px !important;
+			object-fit: cover;
+			border: 2px solid #ffb347;
+			border-radius: 6px;
+		}
+
+		/* Стандарт для мелких иконок (30x30) */
+		.db-item-icon-small {
+			width: 30px !important;
+			height: 30px !important;
+			object-fit: cover;
+			border: 1px solid #ffb347; /* Рамка тоньше, так как иконка маленькая */
+			border-radius: 4px;
+		}
+
+		/* Столбец №2: Статичное название предмета (жирный, белый, подчеркнутый) */
+		.db-item-name-static {
+			color: #f2f2f2 !important;
+			font-weight: bold;
+			text-decoration: underline;
+			font-size: 13px !important;
+			display: inline;
+		}
+
+		/* Контейнер для скриншотов внутри описаний (выравнивает их по центру ячейки) */
+		.table-screenshot-container {
+			display: block;
+			text-align: center;
+			margin-top: 8px;
+			width: 100%;
+		}
+
+		/* Скриншоты в ячейках (Отредактировано: исходный размер, без рамок и увеличения) */
+		.table-screenshot-container img,
+		.table-screenshot {
+			display: block;
+			width: auto;
+			height: auto;
+			max-width: calc(100% - 20px); /* Исходный размер, но не более ширины столбца минус 20px */
+			margin: 5px auto; /* Центрируем скриншот */
+			border: none !important; /* Полностью убираем рамку */
+			border-radius: 0; /* Убираем скругление, если нужен чистый скрин */
+			box-shadow: none !important; /* Убираем тени */
+			transform: none !important; /* Никакого изменения масштаба */
+			transition: none !important; /* Убираем анимацию */
+			cursor: default; /* Обычный курсор вместо лупы */
+		}
+
+		/* Анимация полусекундной мягкой золотой вспышки строки при быстром прыжке */
+		@keyframes quick-row-flash {
+		0% { background-color: rgba(255, 179, 71, 0.5); }
+		30% { background-color: rgba(255, 179, 71, 0.5); }
+		100% { background-color: transparent; }
+		}
+		.table-row-highlight,
+		div.table-row-highlight,
+		p.table-row-highlight,
+		span.table-row-highlight {
+			animation: quick-row-flash 0.8s cubic-bezier(0.25, 1, 0.5, 1) !important;
+		}
+
+		/* Текст-ссылка в самом тексте гайда */
+		.item-text-trigger {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			color: #f2f2f2 !important;
+			font-weight: bold;
+			text-decoration: underline;
+			cursor: pointer; /* Курсор в виде знака вопроса на тексте */
+			padding: 0 2px;
+		}
+
+		/* Динамическая мини-иконка 28х28, которая встает через пробел ПОСЛЕ текста */
+		.item-text-icon-dynamic {
+			width: 28px !important;
+			height: 28px !important;
+			object-fit: cover;
+			border-radius: 4px;
+			margin-left: 3px;
+			vertical-align: middle;
+			border: 1px solid #ffb347 !important; /* Твоя золотая рамка */
+			cursor: help; /* Обычный курсор вопросов вместо лупы */
+			pointer-events: auto !important; /* Позволяет иконке отдельно ловить ховер */
+			display: inline-block;
+		}
+		/* === СТИЛИ ДЛЯ РАЗДЕЛА БАЗЫ ЛУТА === */
+		.loot-section-container {
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		/* Верхняя панель управления (Лево 1/3, Право 2/3) */
+		.loot-control-panel {
+			display: flex;
+			gap: 20px;
+			width: 100%;
+			overflow: visible !important; 
+		}
+
+		/* Левое окно менеджера (Высота и обводка один в один как у правого) */
+		.loot-manager-left {
+			width: 33.333%;
+			background: #1f142e;
+			border: 2px solid #ffb347; /* Золотая обводка синхронизирована */
+			border-radius: 14px;
+			padding: 15px;
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+			overflow: visible !important; 
+			position: relative;
+			height: 220px; /* Идентичная фиксированная высота */
+		}
+
+		/* Текст-описание внутри менеджера */
+		.loot-manager-desc {
+			color: #aaa;
+			font-size: 12px;
+			line-height: 1.4;
+			margin: 0 0 8px 0 !important;
+			text-align: left;
+		}
+
+		/* Правое окно превью зоны */
+		.loot-preview-right {
+			width: 66.666%;
+			background: #1a1228;
+			border: 2px solid #ffb347; /* Золотая обводка синхронизирована с левым */
+			border-radius: 14px;
+			padding: 0 !important; 
+			box-sizing: border-box;
+			display: flex !important;
+			flex-direction: row !important; /* Картинка слева, текстовый блок справа */
+			align-items: center !important; /* Центрирует внутренний контент по вертикальной оси */
+			justify-content: flex-start !important; 
+			height: 220px; /* Фиксированная высота */
+			position: relative;
+			overflow: hidden !important;
+			box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+		}
+
+		/* Обертка для стартового текста "Зона не выбрана" */
+		.loot-preview-empty-wrap {
+			display: flex !important;
+			flex-direction: column !important;
+			align-items: center !important;
+			justify-content: center !important;
+			width: 100% !important;
+			height: 100% !important;
+			text-align: center !important;
+			padding: 15px !important;
+			box-sizing: border-box;
+		}
+
+		/* Блок с текстовой информацией (Название + Босс), сдвинутый вверх */
+		.loot-preview-info-block {
+			display: flex;
+			flex-direction: column;
+			gap: 2px; /* Расстояние между Названием данжа и строкой Босса */
+			align-self: flex-start; /* Прижимает весь текстовый блок к самому верху окна */
+			padding-top: 4px; /* Красивый отступ сверху от рамки подземелья */
+			padding-left: 25px; /* Отступ текстового блока от картинки */
+			z-index: 2;
+		}
+
+		/* Название зоны/подземелья (Верхняя строка) */
+		.loot-preview-title {
+			font-size: 22px !important;
+			color: #ffb347 !important;
+			font-weight: bold !important;
+			margin: 0 !important;
+			text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+			text-align: left !important;
+			padding-left: 0 !important; /* Обнуляем, так как padding теперь у всей обертки */
+		}
+
+		/* Строка с иконкой и именем босса (Вторая строка) */
+		.loot-preview-boss-line {
+			display: flex;
+			align-items: center; /* Центрирует иконку рожицы и текст имени по горизонтали */
+			gap: 8px; /* Расстояние между иконкой рожицы и именем босса */
+		}
+
+		/* Статичная иконка рожицы босса */
+		.loot-boss-icon {
+			width: 24px !important;   /* Компактный и аккуратный размер */
+			height: 24px !important;
+			object-fit: contain !important;
+			display: inline-block !important;
+		}
+
+		/* Отображение имени босса */
+		.loot-boss-name {
+			color: #CD5C5C; /* Цвет имени босса в базе лута*/
+			font-size: 14px;
+			font-weight: bold;
+			text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+		}
+
+		/* Картинка подземелья (БЕЗ золотой обводки) */
+		.loot-preview-image {
+			height: calc(100% - 6px) !important; /* Высота окошка минус 6px */
+			margin-top: 3px !important; 
+			margin-bottom: 3px !important; 
+			margin-left: 3px !important; 
+			width: auto !important; 
+			max-width: 45% !important; 
+			border-radius: 10px !important; 
+			border: none !important; /* ЗОЛОТАЯ ОБВОДКА УБРАНА */
+			object-fit: contain !important; 
+			z-index: 2;
+			box-shadow: 3px 0 10px rgba(0,0,0,0.4);
+			display: block !important;
+		}
+
+		/* Вкладки (Tabs) */
+		.loot-tabs {
+			display: flex;
+			gap: 5px;
+			border-bottom: 2px solid #2a1a3a;
+			padding-bottom: 8px;
+			margin-top: auto; 
+		}
+
+		.loot-tab-btn {
+			flex: 1;
+			background: #2a1a3a;
+			border: 1px solid #ffb347;
+			color: #ffb347;
+			padding: 8px 5px;
+			font-size: 13px;
+			font-weight: bold;
+			border-radius: 6px;
+			cursor: pointer;
+			text-align: center;
+			transition: all 0.2s ease;
+		}
+
+		.loot-tab-btn:hover {
+			background: #ffb347;
+			color: #1a1228;
+		}
+
+		.loot-tab-btn.active {
+			background: #ffb347;
+			color: #1a1228;
+			box-shadow: 0 0 10px rgba(255, 179, 71, 0.4);
+		}
+
+		/* Выпадающее меню */
+		.loot-dropdown-wrapper {
+			position: relative;
+			width: 100%;
+			overflow: visible !important;
+			margin-bottom: 5px;
+		}
+
+		.loot-dropdown-trigger {
+			background: #2a1a3a;
+			border: 1px solid #ffb347;
+			color: #fff;
+			padding: 12px 35px 12px 15px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-weight: bold;
+			font-size: 14px;
+			position: relative;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			transition: background 0.2s;
+			z-index: 105;
+		}
+
+		.loot-dropdown-trigger:hover {
+			background: #35214a;
+		}
+
+		.loot-dropdown-trigger::after {
+			content: '▼';
+			position: absolute;
+			right: 15px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #ffb347;
+			font-size: 12px;
+			transition: transform 0.3s ease;
+		}
+
+		.loot-dropdown-wrapper.open .loot-dropdown-trigger::after {
+			transform: translateY(-50%) rotate(180deg);
+		}
+
+		.loot-dropdown-menu {
+			display: none;
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			background: #150b25;
+			border: 2px solid #ffb347;
+			border-radius: 8px;
+			max-height: 220px;
+			overflow-y: auto !important;
+			overflow-x: hidden;
+			z-index: 99999 !important; 
+			box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+			box-sizing: border-box;
+		}
+
+		.loot-dropdown-menu::-webkit-scrollbar {
+			width: 6px;
+		}
+		.loot-dropdown-menu::-webkit-scrollbar-track {
+			background: #150b25;
+		}
+		.loot-dropdown-menu::-webkit-scrollbar-thumb {
+			background: #ffb347;
+			border-radius: 3px;
+		}
+
+		.loot-dropdown-item {
+			padding: 10px 15px;
+			color: #00d4ff;
+			cursor: pointer;
+			font-weight: bold;
+			transition: all 0.15s;
+			border-bottom: 1px solid #2a1a3a;
+		}
+		.loot-dropdown-item:last-child {
+			border-bottom: none;
+		}
+		.loot-dropdown-item:hover {
+			background: #2a1a3a;
+			color: #ffb347;
+			padding-left: 20px;
+		}
+
+		/* НИЖНЯЯ СЕТКА ОКOН ЛУТА */
+		.loot-display-grid {
+			display: flex;
+			gap: 15px;
+			width: 100%;
+			justify-content: space-between;
+			margin-top: 10px;
+		}
+
+		.loot-card {
+			background: #1f142e;
+			border: 2px solid #2a1a3a;
+			border-radius: 12px;
+			padding: 12px;
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			min-height: 180px;
+			box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+			transition: border-color 0.3s;
+		}
+		.loot-card * {
+			pointer-events: none !important;
+		}
+		.loot-card:hover {
+			border-color: #ffb347;
+		}
+
+		.loot-card-title {
+			font-size: 14px;
+			color: #ffb347;
+			font-weight: bold;
+			text-align: center;
+			border-bottom: 1px solid #2a1a3a;
+			padding-bottom: 6px;
+		}
+
+		.loot-card-body {
+			flex: 1;
+			display: flex;
+			align-items: flex-start;
+			justify-content: center;
+			width: 100%;
+		}
+
+		.loot-card-body img {
+			width: auto !important;
+			max-width: calc(100% - 6px) !important;
+			height: auto !important;
+			border-radius: 6px;
+			display: block;
+			margin: 0 auto;
+		}
+
+		.loot-no-data {
+			color: #ff3366;
+			font-weight: 900;
+			font-size: 15px;
+			text-align: center;
+			text-transform: uppercase;
+			text-shadow: 0 0 10px rgba(255, 51, 102, 0.4);
+			padding: 10px;
+		}
+		/* Строка количества персонажей */
+		.loot-preview-person-line {
+			display: flex;
+			align-items: center;
+			gap: 10px; /* Отступ от иконки до текста */
+			margin-top: 4px; /* Небольшой зазор от блока боссов */
+			border-top: 1px solid rgba(255, 179, 71, 0.15); /* Тонкая декоративная линия разделения */
+			padding-top: 8px; /* Отступ текста от линии разделения */
+		}
+
+		/* Иконка человечка */
+		.loot-person-icon {
+			width: 20px !important;
+			height: 20px !important;
+			object-fit: contain !important;
+			display: inline-block !important;
+		}
+
+		/* Текст количества персонажей */
+		.loot-person-text {
+			color: #aaa; /* Умеренный серый цвет, чтобы не отвлекать от имени босса */
+			font-size: 13px;
+			font-weight: bold;
+			text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+		}
+		/* Контейнер для динамической строки уведомления в луте */
+		.menu-alert-row {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 6px 10px;
+			margin-top: 10px;
+			background: rgba(255, 59, 48, 0.08); /* Мягкий аварийный подтон */
+			border-left: 3px solid #ffb347; /* Твой фирменный золотой акцент */
+			border-radius: 0 4px 4px 0;
+			width: fit-content;
+		}
+
+		/* Анимация плавного моргания знака (Желтый -> Красный) */
+		.alert-icon-blinking {
+			font-size: 17px;
+			line-height: 1;
+			display: inline-flex;
+			transform: translateY(-2px);
+			animation: blink-yellow-red 1.5s infinite ease-in-out;
+		}
+
+		/* Текст предупреждения */
+		.alert-text {
+			font-size: 16px;
+			color: #ffb347; /* Золотистый текст, чтобы гармонировал с темой */
+			font-weight: 600;
+			line-height: 1;
+		}
+
+		/* Этапы изменения цвета */
+		@keyframes blink-yellow-red {
+			0%, 100% {
+				color: #ffb347; /* Золото */
+				filter: drop-shadow(0 0 2px rgba(255, 179, 71, 0.4));
+			}
+			50% {
+				color: #ff3b30; /* Аварийный красный */
+				filter: drop-shadow(0 0 6px rgba(255, 59, 48, 0.8)); /* Неоновое свечение */
+			}
+		}
+		/* ========================================
+			БЛОК ОБРАТНОЙ СВЯЗИ (ОШИБКИ)
+			======================================== */
+
+		/* Блок в боковом меню */
+		.feedback-block {
+			background: #2a1e3a;
+			border-radius: 16px;
+			padding: 15px;
+			margin-top: 15px;
+			border: 1px solid #5a3e7a;
+			box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+			text-align: center;
+		}
+		.feedback-title {
+			color: #ffb347;
+			font-size: 16px;
+			font-weight: bold;
+			margin-bottom: 8px;
+		}
+		.feedback-desc {
+			color: #f5e6b8;
+			font-size: 13px;
+			line-height: 1.4;
+			margin-bottom: 12px;
+			text-align: left;
+		}
+		.feedback-btn {
+			background: linear-gradient(135deg, #5a3e7a 0%, #3d2a52 100%);
+			border: none;
+			padding: 10px 18px;
+			border-radius: 60px;
+			font-size: 14px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			color: #ffcf8a;
+			border-left: 3px solid #ffb347;
+			width: 100%;
+		}
+		.feedback-btn:hover {
+			transform: translateX(4px);
+			background: linear-gradient(135deg, #7a5299 0%, #5a3e7a 100%);
+			color: #ffe0a3;
+		}
+
+		/* Модальное окно */
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 10001;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0,0,0,0.6);
+			align-items: center;
+			justify-content: center;
+		}
+		.modal-content {
+			background: #2a1e3a;
+			border: 2px solid #ffb347;
+			border-radius: 20px;
+			padding: 25px;
+			width: 90%;
+			max-width: 450px;
+			box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+			position: relative;
+		}
+		.modal-close {
+			position: absolute;
+			top: 10px;
+			right: 15px;
+			color: #aaa;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+		}
+		.modal-close:hover {
+			color: #fff;
+		}
+		.modal-content h3 {
+			color: #ffb347;
+			margin-top: 0;
+			margin-bottom: 15px;
+			text-align: center;
+		}
+		.modal-step {
+			margin-bottom: 15px;
+		}
+		.modal-step label {
+			display: block;
+			color: #f5e6b8;
+			font-size: 14px;
+			font-weight: bold;
+			margin-bottom: 5px;
+		}
+		.modal-step input,
+		.modal-step textarea {
+			width: 100%;
+			padding: 10px;
+			border-radius: 8px;
+			border: 1px solid #5a3e7a;
+			background: #1e152a;
+			color: #f5e6b8;
+			font-size: 14px;
+			box-sizing: border-box;
+			font-family: inherit;
+		}
+		.modal-step input:read-only {
+			background: #2a1e3a;
+			color: #aaa;
+			cursor: not-allowed;
+		}
+		.modal-step textarea {
+			resize: vertical;
+			min-height: 80px;
+			max-height: 150px;
+		}
+		.char-counter {
+			text-align: right;
+			color: #aaa;
+			font-size: 12px;
+			margin-top: 4px;
+		}
+		.modal-send-btn {
+			margin-top: 5px;
+		}
+		.modal-status {
+			margin-top: 12px;
+			text-align: center;
+			font-weight: bold;
+			font-size: 14px;
+			min-height: 22px;
+		}
+		.modal-status.success {
+			color: #33ff33;
+		}
+		.modal-status.error {
+			color: #ff5555;
+		}
+
+/* ===== СТИЛИ ДЛЯ РАЗДЕЛА РОТАЦИЙ ===== */
+
+/* Верхний ряд: 2 окна */
+.rotation-top-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    width: 100%;
+    height: 130px; /* Увеличено с учётом заголовков */
+}
+
+/* Левое окно - 1/3 ширины */
+.rotation-class-selector {
+    flex: 1;
+    max-width: 33.333%;
+    background: #1f142e;
+    border: 2px solid #ffb347;
+    border-radius: 14px;
+    padding: 10px 15px 12px 15px;
+    box-sizing: border-box;
+    height: 130px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* Правое окно - 2/3 ширины */
+.rotation-spec-selector {
+    flex: 2;
+    background: #1f142e;
+    border: 2px solid #ffb347;
+    border-radius: 14px;
+    padding: 10px 15px 12px 15px;
+    box-sizing: border-box;
+    height: 130px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* Заголовки окон */
+.rotation-class-title,
+.rotation-spec-title {
+    color: #ffb347;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #3d2a52;
+    padding-bottom: 4px;
+    flex-shrink: 0;
+}
+
+/* Выпадающий список */
+.rotation-class-dropdown {
+    width: 100%;
+    padding: 6px 10px;
+    background: #2a1a3a;
+    color: #f5e6b8;
+    border: 1px solid #5a3e7a;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    font-family: inherit;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.rotation-class-dropdown:focus {
+    outline: none;
+    border-color: #ffb347;
+}
+
+.rotation-class-dropdown option {
+    background: #2a1a3a;
+    color: #f5e6b8;
+    padding: 5px;
+}
+
+/* Контейнер для картинок-кнопок специализаций */
+.rotation-spec-container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    flex: 1;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 4px 0;
+    min-height: 50px;
+}
+
+.rotation-spec-container::-webkit-scrollbar {
+    height: 4px;
+}
+.rotation-spec-container::-webkit-scrollbar-track {
+    background: #150b25;
+    border-radius: 2px;
+}
+.rotation-spec-container::-webkit-scrollbar-thumb {
+    background: #ffb347;
+    border-radius: 2px;
+}
+
+/* Картинка-кнопка специализации - ВЫСОТА 100px, ширина авто */
+.rotation-spec-btn {
+    height: 100px !important;
+    width: auto !important;
+    max-width: 120px;
+    border-radius: 10px;
+    border: 2px solid #5a3e7a;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    object-fit: cover;
+    background: #1a1228;
+    flex-shrink: 0;
+}
+
+.rotation-spec-btn:hover {
+    border-color: #ffb347;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 179, 71, 0.3);
+}
+
+.rotation-spec-btn.active {
+    border-color: #ffb347;
+    box-shadow: 0 0 25px rgba(255, 179, 71, 0.5);
+    transform: scale(1.08);
+}
+
+/* НИЖНЕЕ ОКНО (третье) - полная ширина */
+.rotation-bottom {
+    width: 100%;
+    margin-top: 20px;
+    background: #1f142e;
+    border: 2px solid #ffb347;
+    border-radius: 14px;
+    padding: 15px 20px;
+    box-sizing: border-box;
+    min-height: 300px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== 5 БЛОКОВ В НИЖНЕМ ОКНЕ ===== */
+.rotation-content {
+    color: #f5e6b8;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.rotation-content .block {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #3d2a52;
+}
+.rotation-content .block:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.rotation-content .block-title {
+    color: #ffb347;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rotation-content .block-title .badge {
+    background: #5a3e7a;
+    padding: 0 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    color: #ffcf8a;
+}
+
+.rotation-content .block-image {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid #5a3e7a;
+    margin: 5px 0 8px 0;
+    display: block;
+}
+
+.rotation-content .block-text {
+    color: #f5e6b8;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 8px 12px;
+    background: rgba(42, 26, 58, 0.5);
+    border-radius: 6px;
+    border-left: 3px solid #ffb347;
+    margin: 5px 0;
+}
+
+.rotation-content .block-svg {
+    margin: 5px 0;
+    padding: 5px;
+    background: #1a1228;
+    border-radius: 8px;
+    border: 1px solid #3d2a52;
+    overflow-x: auto;
+}
+
+.rotation-content .block-svg svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.rotation-content .block-svg-comment {
+    color: #aaa;
+    font-size: 13px;
+    font-style: italic;
+    margin-top: 4px;
+    padding-left: 10px;
+    border-left: 2px solid #5a3e7a;
+}
+
+/* Адаптивность */
+@media (max-width: 800px) {
+    .rotation-top-row {
+        flex-direction: column;
+        height: auto;
+    }
+    .rotation-class-selector,
+    .rotation-spec-selector {
+        max-width: 100%;
+        height: auto;
+        min-height: 100px;
+    }
+    .rotation-spec-btn {
+        height: 80px !important;
+    }
+}
+		</style>
+</head>
+<body>
+<div class="guide-container">
+    <!-- ===== БОКОВАЯ ПАНЕЛЬ ===== -->
+    <div class="sidebar">
+        <button class="section-btn" data-section="newbie">1. Вы новичок</button>
+        <button class="section-btn" data-section="trigrams">2. Триграммы</button>
+        <button class="section-btn" data-section="bonuses">3. Бонусы аккаунта, обелиск силы и коллекции</button>
+        <button class="section-btn" data-section="weapon">4. Улучшение оружия</button>
+        <button class="section-btn" data-section="jewelry">5. Улучшение бижутерии</button>
+        <button class="section-btn" data-section="bottom">6. Улучшение нижнего ряда</button>
+        <button class="section-btn" data-section="soket">7. Ювелирные камни</button>
+        <button class="section-btn" data-section="based">8. База итемов/валюты</button>
+        <button class="section-btn" data-section="loot">9. База лута</button>
+		<button class="section-btn" data-section="rotation">10. Ротации для классов персонажей</button>
+		<button id="saveRotationBtn" class="section-btn" style="border-left-color: #33ff33; color: #88ff88; margin-top: 5px;">
+			💾 Сохранить изменения
+		</button>
+
+    </div>
+
+
+    <div class="content-panel">
+        <div class="content-inner" id="infoArea">
+            <h2>📖 Asura Blade & Soul гайд по прокачке Вашего персонажа (pve)</h2>
+            <p>Выберите раздел из меню слева, чтобы увидеть подробную информацию.</p>
+            <p>Автор гайда: <b>Suprina</b>. Гайд составлен при поддержке <b>Main Ruina</b></p>
+            <p>Ссылка на наш Discord канал боевой школы <span style="font-weight: bold;">Revival</span>: <a href="https://discord.gg/bnsgambler" style="color: #778899;">https://discord.gg/bnsgambler</a></p>
+
+            <div class="welcome-image-container vignette">
+                <img src="data:image/webp;base64,..." alt="Welcome Image">
+            </div>
+        </div>
+    </div>
+</div> 
+<script>
+    // ========= КОНТЕНТ РАЗДЕЛОВ =========
+    const sectionsContent = {
+        newbie: `<h2>🌱 Вы новичок</h2><p>Скоро тут будет информация...</p>`,
+        trigrams: `<h2>☱ Триграммы</h2> <p>Скоро тут будет информация...</p>`,
+		bonuses: `<h2>🎁 Бонусы аккаунта и обелиск силы</h2><p>Скоро тут будет информация...</p>`,
+        weapon: `<h2>⚔️ Улучшение оружия</h2><p>Скоро тут будет информация...</p>`,
+        jewelry: `<h2>💍 Улучшение бижутерии</h2><p>Скоро тут будет информация...</p>`,
+        bottom: `<h2>🛡️ Улучшение нижнего ряда</h2><p>Скоро тут будет информация...</p>`,
+        soket: `<h2>💎 Ювелирные камни</h2>	<p>Скоро тут будет информация...</p>`,
+		based: `<h2>📦 База предметов и валюты</h2><p>Скоро тут будет информация...</p>`,
+		rotation: `
+<h2>🎮 Ротации для классов персонажей</h2>
+
+<!-- ВЕРХНИЙ РЯД: 2 ОКНА -->
+<div class="rotation-top-row">
+    <!-- ЛЕВОЕ ОКНО - ВЫБОР КЛАССА -->
+    <div class="rotation-class-selector">
+        <div class="rotation-class-title">🎯 Выберите класс персонажа:</div>
+        <select id="classSelect" class="rotation-class-dropdown">
+            <option value="">— Выберите класс персонажа —</option>
+        </select>
+    </div>
+    
+    <!-- ПРАВОЕ ОКНО - СПЕЦИАЛИЗАЦИИ -->
+    <div class="rotation-spec-selector">
+        <div class="rotation-spec-title">🎯 Доступные специализации:</div>
+        <div id="specContainer" class="rotation-spec-container">
+            <span style="color:#666;font-size:13px;">Выберите класс слева</span>
+        </div>
+    </div>
+</div>
+
+<!-- НИЖНЕЕ ОКНО - 5 БЛОКОВ ДЛЯ РЕДАКТОРА -->
+<div class="rotation-bottom">
+    <div id="rotationContent" class="rotation-content">
+        <p style="color: #888; text-align: center; padding: 40px 0; font-size: 16px;">
+            👈 Выберите класс и специализацию
+        </p>
+    </div>
+</div>
+
+<style>
+/* ===== СТИЛИ ДЛЯ РАЗДЕЛА РОТАЦИЙ ===== */
+
+/* Верхний ряд: 2 окна */
+.rotation-top-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+    width: 100%;
+    height: 110px; /* ФИКСИРОВАННАЯ ВЫСОТА 110px */
+}
+
+
+`,
+		};
+</script>
+<script>
+// ===== БАЗА ДАННЫХ ПЕРСОНАЖЕЙ ДЛЯ РОТАЦИЙ =====
+window.classDatabase = {
+    // Мастер меча
+    'master_sword': {
+        id: 'master_sword',
+        name: 'Мастер меча',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Меч света', img: 'data:image/png;base64,...' },
+            { name: 'Меч тьмы', img: 'data:image/png;base64,...' },
+            { name: 'Меч баланса', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер кунг-фу
+    'master_kungfu': {
+        id: 'master_kungfu',
+        name: 'Мастер кунг-фу',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Кулак ветра', img: 'data:image/png;base64,...' },
+            { name: 'Кулак земли', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер стихий
+    'master_elemental': {
+        id: 'master_elemental',
+        name: 'Мастер стихий',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Огонь', img: 'data:image/png;base64,...' },
+            { name: 'Лёд', img: 'data:image/png;base64,...' },
+            { name: 'Молния', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер секиры
+    'master_axe': {
+        id: 'master_axe',
+        name: 'Мастер секиры',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Ярость', img: 'data:image/png;base64,...' },
+            { name: 'Защита', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер тени
+    'master_shadow': {
+        id: 'master_shadow',
+        name: 'Мастер тени',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Кинжалы', img: 'data:image/png;base64,...' },
+            { name: 'Сюрикены', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер призыва
+    'master_summoner': {
+        id: 'master_summoner',
+        name: 'Мастер призыва',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Природа', img: 'data:image/png;base64,...' },
+            { name: 'Тьма', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер клинка линов
+    'master_blade_lin': {
+        id: 'master_blade_lin',
+        name: 'Мастер клинка линов',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Ветер', img: 'data:image/png;base64,...' },
+            { name: 'Молния', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер духов
+    'master_spirit': {
+        id: 'master_spirit',
+        name: 'Мастер духов',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Дух огня', img: 'data:image/png;base64,...' },
+            { name: 'Дух воды', img: 'data:image/png;base64,...' },
+            { name: 'Дух земли', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер Ци
+    'master_qi': {
+        id: 'master_qi',
+        name: 'Мастер Ци',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Ци огня', img: 'data:image/png;base64,...' },
+            { name: 'Ци холода', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер стрельбы
+    'master_gun': {
+        id: 'master_gun',
+        name: 'Мастер стрельбы',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Огонь', img: 'data:image/png;base64,...' },
+            { name: 'Ветер', img: 'data:image/png;base64,...' },
+            { name: 'Лёд', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер гнева
+    'master_wrath': {
+        id: 'master_wrath',
+        name: 'Мастер гнева',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Ярость', img: 'data:image/png;base64,...' },
+            { name: 'Бешенство', img: 'data:image/png;base64,...' }
+        ]
+    },
+    // Мастер лука
+    'master_bow': {
+        id: 'master_bow',
+        name: 'Мастер лука',
+        icon: 'data:image/png;base64,...',
+        specs: [
+            { name: 'Ветер', img: 'data:image/png;base64,...' },
+            { name: 'Огонь', img: 'data:image/png;base64,...' }
+        ]
+    }
+};
+</script>
+<script>
+// ===== ЛОГИКА РАБОТЫ РАЗДЕЛА РОТАЦИЙ =====
+(function() {
+    // Функция заполнения выпадающего списка с иконками
+function populateClassDropdown() {
+    const select = document.getElementById('classSelect');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">— Выберите класс персонажа —</option>';
+    
+    for (const [key, classData] of Object.entries(window.classDatabase)) {
+        const option = document.createElement('option');
+        option.value = key;
+        // Иконка 32x32 + название класса
+        option.innerHTML = `<img src="${classData.icon}" style="width:32px;height:32px;vertical-align:middle;border-radius:4px;margin-right:8px;"> ${classData.name}`;
+        select.appendChild(option);
+    }
+}
+    
+    // Функция отображения специализаций (в правом окне)
+    function displaySpecs(classKey) {
+        const container = document.getElementById('specContainer');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        if (!classKey || !window.classDatabase[classKey]) {
+            container.innerHTML = '<span style="color:#666;font-size:13px;">Выберите класс слева</span>';
+            return;
+        }
+        
+        const classData = window.classDatabase[classKey];
+        const specs = classData.specs || [];
+        
+        if (specs.length === 0) {
+            container.innerHTML = '<span style="color:#666;font-size:13px;">Нет специализаций</span>';
+            return;
+        }
+        
+        // Создаём картинки-кнопки
+        specs.forEach((spec, index) => {
+            const img = document.createElement('img');
+            img.src = spec.img || 'data:image/png;base64,...';
+            img.alt = spec.name;
+            img.title = spec.name;
+            img.className = 'rotation-spec-btn';
+            img.dataset.specIndex = index;
+            img.dataset.classKey = classKey;
+            
+            img.addEventListener('click', function() {
+                document.querySelectorAll('.rotation-spec-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                showRotation(classKey, index);
+            });
+            
+            container.appendChild(img);
+        });
+    }
+    
+    // Функция отображения ротации (в нижнем окне - 5 блоков)
+function showRotation(classKey, specIndex) {
+    const content = document.getElementById('rotationContent');
+    if (!content) return;
+    
+    const classData = window.classDatabase[classKey];
+    if (!classData) {
+        content.innerHTML = '<p style="color:red;">Класс не найден</p>';
+        return;
+    }
+    
+    const spec = classData.specs[specIndex];
+    if (!spec) {
+        content.innerHTML = '<p style="color:red;">Специализация не найдена</p>';
+        return;
+    }
+    
+    // ===== 5 БЛОКОВ ДЛЯ РЕДАКТОРА =====
+    content.innerHTML = `
+        <div style="margin-bottom:10px;">
+            <h3 style="color:#ffb347;font-size:20px;margin-bottom:4px;">${classData.name} — ${spec.name}</h3>
+            <p style="color:#888;font-size:13px;margin-bottom:12px;">Редактируйте блоки ниже для наполнения контентом</p>
+        </div>
+        
+        <!-- БЛОК 1: Картинка талантов -->
+        <div class="block">
+            <div class="block-title">
+                📸 БЛОК 1 <span class="badge">картинка талантов</span>
+            </div>
+            <img class="block-image" src="data:image/png;base64,..." alt="Картинка талантов" style="max-width:100%;">
+            <p style="color:#666;font-size:12px;margin-top:4px;">⬆️ Замените src на вашу картинку талантов</p>
+        </div>
+        
+        <!-- БЛОК 2: Текст-комментарий к картинке талантов -->
+        <div class="block">
+            <div class="block-title">
+                📝 БЛОК 2 <span class="badge">комментарий к талантам</span>
+            </div>
+            <div class="block-text">
+                Здесь будет описание талантов, пояснения к картинке выше.
+                Замените этот текст на ваш комментарий.
+            </div>
+        </div>
+        
+        <!-- БЛОК 3: Картинка улучшение скилов -->
+        <div class="block">
+            <div class="block-title">
+                ⚡ БЛОК 3 <span class="badge">улучшение скилов</span>
+            </div>
+            <img class="block-image" src="data:image/png;base64,..." alt="Улучшение скилов" style="max-width:100%;">
+            <p style="color:#666;font-size:12px;margin-top:4px;">⬆️ Замените src на вашу картинку улучшения скилов</p>
+        </div>
+        
+        <!-- БЛОК 4: Текст-комментарий к скилам -->
+        <div class="block">
+            <div class="block-title">
+                💬 БЛОК 4 <span class="badge">комментарий к скилам</span>
+            </div>
+            <div class="block-text">
+                Здесь будет описание улучшений скилов, пояснения к картинке выше.
+                Замените этот текст на ваш комментарий.
+            </div>
+        </div>
+        
+        <!-- БЛОК 5: SVG схема -->
+        <div class="block">
+            <div class="block-title">
+                📊 БЛОК 5 <span class="badge">SVG схема</span>
+            </div>
+            <div class="block-svg">
+                <!-- ВСТАВЬТЕ ВАШ SVG КОД ЗДЕСЬ -->
+                <svg width="400" height="60" xmlns="http://www.w3.org/2000/svg" style="background:#1a1228;border-radius:6px;">
+                    <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" fill="#ffb347" font-size="14px">
+                        Вставьте сюда ваш SVG код
+                    </text>
+                </svg>
+            </div>
+            <div class="block-svg-comment">
+                📌 Комментарий к схеме: описание того, что изображено на SVG.
+            </div>
+            <div class="block-svg" style="margin-top:10px;">
+                <!-- ЕЩЁ ОДНА СТРОКА SVG, ЕСЛИ НУЖНО -->
+                <svg width="400" height="40" xmlns="http://www.w3.org/2000/svg" style="background:#1a1228;border-radius:6px;">
+                    <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" fill="#5a3e7a" font-size="12px">
+                        Ещё одна SVG строка (если нужно)
+                    </text>
+                </svg>
+            </div>
+            <div class="block-svg-comment">
+                📌 Ещё один комментарий к схеме.
+            </div>
+        </div>
+    `;
+}
+    
+    // Обработчик выбора класса
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'classSelect') {
+            const classKey = e.target.value;
+            displaySpecs(classKey);
+            
+            // Очищаем нижнее окно
+            const content = document.getElementById('rotationContent');
+            if (content) {
+                content.innerHTML = `
+                    <p style="color: #888; text-align: center; padding: 30px 0;">
+                        👆 Выберите специализацию справа<br>
+                        <span style="font-size: 13px; color: #666;">Нажмите на иконку специализации</span>
+                    </p>
+                `;
+            }
+        }
+    });
+    
+    // Инициализация при загрузке раздела
+    function initRotationSection() {
+        populateClassDropdown();
+        displaySpecs(null);
+        
+        // Сбрасываем нижнее окно
+        const content = document.getElementById('rotationContent');
+        if (content) {
+            content.innerHTML = `
+                <p style="color: #888; text-align: center; padding: 30px 0;">
+                    👈 Выберите класс и специализацию<br>
+                    <span style="font-size: 13px; color: #666;">После выбора здесь появится ротация</span>
+                </p>
+            `;
+        }
+    }
+    
+    // Делаем функции глобальными
+    window.initRotationSection = initRotationSection;
+    window.showRotation = showRotation;
+    
+    // Автоматическая инициализация
+    if (document.getElementById('classSelect')) {
+        initRotationSection();
+    }
+})();
+</script>
+<script>
+    // === ЕДИНЫЙ КОМПЛЕКС СКРИПТОВ: НАВИГАЦИЯ, СКРОЛЛ И ХОВЕРЫ ===
+    const buttons = document.querySelectorAll('.section-btn');
+    const infoArea = document.getElementById('infoArea');
+
+    // СДЕЛАНО ГЛОБАЛЬНЫМ: Хранение координат теперь доступно для всех скриптов страницы
+    window.scrollPositions = {};
+    let currentSectionId = null;
+    
+    // ПРЕДОХРАНИТЕЛЬ: блокирует запись ложных координат при переключении разделов
+    let isSwitching = false;
+
+    // Базовая функция переключения вкладок
+    function switchSection(sectionId) {
+        if (currentSectionId === sectionId) return;
+
+        const docEl = document.documentElement || document.body;
+
+        // 1. Перед уходом сохраняем точную координату старого раздела
+        if (currentSectionId) {
+            window.scrollPositions[currentSectionId] = window.scrollY || docEl.scrollTop;
+        }
+
+        // Включаем блокировку трекера скролла на время переключения
+        isSwitching = true;
+
+        // 2. Мягко очищаем хэш адресной строки браузера
+        if (window.location.hash) {
+            history.replaceState(null, null, ' ');
+        }
+
+        // 3. Меняем контент на экране
+        infoArea.innerHTML = sectionsContent[sectionId] || '<p>Раздел временно недоступен</p>';
+        
+		if (sectionId === 'rotation') {
+			setTimeout(() => {
+				if (typeof window.initRotationSection === 'function') {
+					window.initRotationSection();
+				}
+			}, 20);
+		}
+		
+        // === АВТОМАТИЧЕСКИЙ ТРИГГЕР ДЛЯ БАЗЫ ЛУТА ===
+        if (sectionId === 'loot') {
+            // Даем разметке внедриться в DOM, затем строим меню и восстанавливаем состояние
+            setTimeout(() => {
+                if (window.lastLootZoneKey && window.localDatabase && window.localDatabase[window.lastLootZoneKey]) {
+                    const savedData = window.localDatabase[window.lastLootZoneKey];
+                    if (typeof window.switchLootCategory === 'function') {
+                        window.switchLootCategory(savedData.type, null);
+                        window.selectLootZone(window.lastLootZoneKey);
+                    }
+                } else {
+                    window.currentLootCategory = 'dungeon';
+                    const firstTab = document.querySelector('.loot-tab-btn');
+                    if (firstTab) {
+                        document.querySelectorAll('.loot-tab-btn').forEach(b => b.classList.remove('active'));
+                        firstTab.classList.add('active');
+                    }
+                    if (typeof window.renderLootDropdownItems === 'function') {
+                        window.renderLootDropdownItems();
+                    }
+                }
+            }, 20);
+        }
+
+        // Подсвечиваем активную кнопку в меню
+        buttons.forEach(btn => {
+            if (btn.getAttribute('data-section') === sectionId) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Запоминаем, где мы сейчас находимся
+        currentSectionId = sectionId;
+
+        // Восстановление парсеров при переключении на вкладку (чтобы ссылки не пропадали)
+        if (typeof window.processItemReferences === 'function') window.processItemReferences();
+        if (typeof window.processLocalReferences === 'function') window.processLocalReferences();
+
+        // 4. БЕЗОПАСНОЕ ВОССТАНОВЛЕНИЕ КООРДИНАТ
+        requestAnimationFrame(() => {
+            if (window.scrollPositions[sectionId] !== undefined) {
+                window.scrollTo(0, window.scrollPositions[sectionId]);
+                docEl.scrollTop = window.scrollPositions[sectionId];
+            } else {
+                window.scrollTo(0, 0);
+                docEl.scrollTop = 0;
+            }
+
+            setTimeout(() => {
+                isSwitching = false;
+            }, 50);
+        });
+    }
+
+    // ПОСТОЯННЫЙ ТРЕКЕР С КРИТИЧЕСКИМ ФИЛЬТРОМ ОШИБОК
+    window.addEventListener('scroll', () => {
+        if (isSwitching) return; 
+
+        if (currentSectionId) {
+            const docEl = document.documentElement || document.body;
+            window.scrollPositions[currentSectionId] = window.scrollY || docEl.scrollTop;
+        }
+    }, { passive: true });
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => switchSection(btn.getAttribute('data-section')));
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const activeBtn = document.querySelector('.section-btn.active');
+        if (activeBtn) {
+            currentSectionId = activeBtn.getAttribute('data-section');
+        }
+    });
+	
+	// ===== КНОПКА СОХРАНИТЬ =====
+document.addEventListener('DOMContentLoaded', function() {
+    const saveBtn = document.getElementById('saveRotationBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            // Собираем данные из всех блоков
+            const content = document.getElementById('rotationContent');
+            if (!content) {
+                alert('❌ Нет контента для сохранения');
+                return;
+            }
+            
+            // Здесь вы можете собрать данные из полей ввода
+            // и сохранить их в localStorage или отправить на сервер
+            
+            // Простой пример сохранения в localStorage
+            const classSelect = document.getElementById('classSelect');
+            const selectedClass = classSelect ? classSelect.value : 'unknown';
+            
+            // Сохраняем состояние
+            const data = {
+                class: selectedClass,
+                content: content.innerHTML,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem('rotationData_' + selectedClass, JSON.stringify(data));
+                alert('✅ Данные сохранены!');
+            } catch(e) {
+                alert('❌ Ошибка сохранения: ' + e.message);
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>
