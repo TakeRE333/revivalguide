@@ -265,102 +265,109 @@
     }
 
     // ============ ОСНОВНАЯ ФУНКЦИЯ ============
-    async function checkAccess() {
-        const urlParams = new URLSearchParams(window.location.search);
-        let tokenFromUrl = urlParams.get('key');
-        let tokenFromCookie = checkTokenFromCookie();
+async function checkAccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let tokenFromUrl = urlParams.get('key');
+    let tokenFromCookie = checkTokenFromCookie();
 
-        // 🚀 СНАЧАЛА ПРОВЕРЯЕМ КУКИ (БЕЗ ЗАПРОСА К БОТУ)
-        if (tokenFromCookie) {
-            console.log('⚡ Токен из кук валиден, загружаем гайд без проверки!');
-            
-            // ✅ Мгновенная авторизация по кукам
-            setTaskStatus(taskToken, 'instant', 'доступ получен');
-            setTaskStatus(taskGuide, 'loading', 'загрузка...');
-            
-            try {
-                const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(tokenFromCookie)}`);
-                
-                if (!response.ok) {
-                    deleteCookie(TOKEN_KEY);
-                    deleteCookie(EXPIRES_KEY);
-                    throw new Error('Токен больше не активен');
-                }
-                
-                const data = await response.json();
-                
-                if (data.html) {
-                    if (data.expires_at) {
-                        setCookie(TOKEN_KEY, tokenFromCookie, data.expires_at);
-                        setCookie(EXPIRES_KEY, data.expires_at, data.expires_at);
-                    }
-                    
-                    setTaskStatus(taskGuide, 'done', 'загружено');
-                    renderGuide(data.html);
-                    return;
-                }
-            } catch (error) {
-                console.log('Ошибка при загрузке по кукам:', error);
-                deleteCookie(TOKEN_KEY);
-                deleteCookie(EXPIRES_KEY);
-                tokenFromCookie = null;
-            }
-        }
-
-        // ============================================
-        // ЕСЛИ КУКИ НЕ РАБОТАЮТ - ПРОВЕРЯЕМ ТОКЕН ИЗ URL
-        // ============================================
+    // 🚀 СНАЧАЛА ПРОВЕРЯЕМ КУКИ
+    if (tokenFromCookie) {
+        console.log('⚡ Токен из кук валиден');
+        setTaskStatus(taskToken, 'instant', 'доступ получен');
+        setTaskStatus(taskGuide, 'loading', 'загрузка...');
         
-        if (!tokenFromUrl) {
-            showError('❌ Токен не указан.', true);
+        try {
+            const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(tokenFromCookie)}`);
+            if (!response.ok) throw new Error('Токен больше не активен');
+            
+            const data = await response.json();
+            
+            // === НОВОЕ: редирект на редактор ===
+            if (data.redirect) {
+                window.location.href = data.redirect;
+                return;
+            }
+            
+            if (data.html) {
+                if (data.expires_at) {
+                    setCookie(TOKEN_KEY, tokenFromCookie, data.expires_at);
+                    setCookie(EXPIRES_KEY, data.expires_at, data.expires_at);
+                }
+                setTaskStatus(taskGuide, 'done', 'загружено');
+                renderGuide(data.html);
+                return;
+            }
+        } catch (error) {
+            console.log('Ошибка при загрузке по кукам:', error);
+            deleteCookie(TOKEN_KEY);
+            deleteCookie(EXPIRES_KEY);
+            tokenFromCookie = null;
+        }
+    }
+
+    // ============================================
+    // ЕСЛИ КУКИ НЕ РАБОТАЮТ - ПРОВЕРЯЕМ ТОКЕН ИЗ URL
+    // ============================================
+    
+    if (!tokenFromUrl) {
+        showError('❌ Токен не указан.', true);
+        return;
+    }
+
+    setTaskStatus(taskToken, 'loading', 'проверка...');
+    setTaskStatus(taskGuide, 'loading', 'загрузка...');
+
+    try {
+        const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(tokenFromUrl)}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            setTaskStatus(taskToken, 'error', 'отказ');
+            setTaskStatus(taskGuide, 'error', 'отменено');
+            showError(`❌ ${errorText || 'Доступ запрещён'}`, false);
             return;
         }
 
-        setTaskStatus(taskToken, 'loading', 'проверка...');
-        setTaskStatus(taskGuide, 'loading', 'загрузка...');
+        const data = await response.json();
 
-        try {
-            const response = await fetch(`${BOT_API}/get-guide?key=${encodeURIComponent(tokenFromUrl)}`);
+        if (data.maintenance) {
+            showMaintenance(data.message);
+            return;
+        }
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                setTaskStatus(taskToken, 'error', 'отказ');
-                setTaskStatus(taskGuide, 'error', 'отменено');
-                localStorage.removeItem(TOKEN_KEY);
-                showError(`❌ ${errorText || 'Доступ запрещён'}`, false);
-                return;
-            }
-
-            const data = await response.json();
-
-            if (data.maintenance) {
-                showMaintenance(data.message);
-                return;
-            }
-
-            if (!data.html) {
-                throw new Error('Гайд не найден');
-            }
-
-            // ✅ ТОКЕН ВАЛИДЕН - СОХРАНЯЕМ В КУКИ
+        // === НОВОЕ: редирект на редактор ===
+        if (data.redirect) {
+            // Сохраняем токен в куки (на 30 дней)
             if (data.expires_at) {
                 setCookie(TOKEN_KEY, tokenFromUrl, data.expires_at);
                 setCookie(EXPIRES_KEY, data.expires_at, data.expires_at);
-                console.log(`✅ Токен сохранен в куки до ${new Date(data.expires_at * 1000).toLocaleString()}`);
             }
-
             setTaskStatus(taskToken, 'done', 'доступ получен');
-            await new Promise(resolve => setTimeout(resolve, 200));
-            
-            renderGuide(data.html);
-
-        } catch (error) {
-            console.error('Ошибка:', error);
-            setTaskStatus(taskToken, 'error', 'ошибка');
-            setTaskStatus(taskGuide, 'error', 'не загружен');
-            showError('⚠️ Ошибка соединения с сервером. Проверьте интернет.', false);
+            setTaskStatus(taskGuide, 'done', 'редирект...');
+            window.location.href = data.redirect;
+            return;
         }
+
+        if (!data.html) {
+            throw new Error('Гайд не найден');
+        }
+
+        // ✅ ОБЫЧНЫЙ ГАЙД
+        if (data.expires_at) {
+            setCookie(TOKEN_KEY, tokenFromUrl, data.expires_at);
+            setCookie(EXPIRES_KEY, data.expires_at, data.expires_at);
+        }
+
+        setTaskStatus(taskToken, 'done', 'доступ получен');
+        await new Promise(resolve => setTimeout(resolve, 200));
+        renderGuide(data.html);
+
+    } catch (error) {
+        console.error('Ошибка:', error);
+        setTaskStatus(taskToken, 'error', 'ошибка');
+        setTaskStatus(taskGuide, 'error', 'не загружен');
+        showError('⚠️ Ошибка соединения с сервером. Проверьте интернет.', false);
     }
+}
 
     // ============ ЗАГЛУШКА ДЛЯ ТЕХ. РАБОТ ============
     function showMaintenance(message) {
